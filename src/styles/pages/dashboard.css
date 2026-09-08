@@ -1,0 +1,227 @@
+/* ========================================
+   DASHBOARD - NEON
+   ======================================== */
+.dashboard-page {
+  padding: 1rem 0;
+}
+
+.dashboard-header {
+  text-align: center;
+  padding: 2rem;
+  background: var(--bg-card);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  margin-bottom: 2rem;
+}
+
+.dashboard-header h1 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.dashboard-header p {
+  color: var(--text-secondary);
+}
+
+/* Stats */
+.dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.dashboard-stats .stat-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: var(--bg-card);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+  transition: var(--transition);
+}
+
+.dashboard-stats .stat-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--neon-pink);
+  box-shadow: 0 0 30px rgba(255, 45, 117, 0.1);
+}
+
+.dashboard-stats .stat-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  background: rgba(255, 45, 117, 0.05);
+}
+
+.dashboard-stats .stat-info {
+  flex: 1;
+}
+
+.dashboard-stats .stat-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--neon-pink);
+  display: block;
+}
+
+.dashboard-stats .stat-label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+/* Charts */
+.dashboard-charts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.chart-card {
+  background: var(--bg-card);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  border: 1px solid var(--border-color);
+}
+
+.chart-card.full-width {
+  grid-column: 1 / -1;
+}
+
+.chart-card h3 {
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+/* Recent Orders */
+.recent-orders {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.recent-order-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8rem 1rem;
+  background: var(--bg-primary);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  transition: var(--transition);
+}
+
+.recent-order-item:hover {
+  border-color: var(--neon-pink);
+}
+
+.recent-order-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.recent-order-id {
+  font-weight: bold;
+  color: var(--neon-pink);
+}
+
+.recent-order-client {
+  color: var(--text-secondary);
+}
+
+.recent-order-details {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.recent-order-total {
+  font-weight: bold;
+  color: var(--neon-pink);
+}
+
+.recent-order-status {
+  padding: 0.2rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+}
+
+.recent-order-status.pendiente {
+  background: rgba(255, 152, 0, 0.1);
+  color: #F57C00;
+  border: 1px solid rgba(255, 152, 0, 0.2);
+}
+
+.recent-order-status.confirmado {
+  background: rgba(33, 150, 243, 0.1);
+  color: #1976D2;
+  border: 1px solid rgba(33, 150, 243, 0.2);
+}
+
+.recent-order-status.preparando {
+  background: rgba(156, 39, 176, 0.1);
+  color: #6A1B9A;
+  border: 1px solid rgba(156, 39, 176, 0.2);
+}
+
+.recent-order-status.enviado {
+  background: rgba(76, 175, 80, 0.1);
+  color: #388E3C;
+  border: 1px solid rgba(76, 175, 80, 0.2);
+}
+
+.recent-order-status.entregado {
+  background: rgba(76, 175, 80, 0.15);
+  color: #2E7D32;
+  border: 1px solid rgba(76, 175, 80, 0.2);
+}
+
+.recent-order-status.cancelado {
+  background: rgba(198, 40, 40, 0.1);
+  color: #C62828;
+  border: 1px solid rgba(198, 40, 40, 0.2);
+}
+
+.recent-order-date {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .dashboard-charts {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .recent-order-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .recent-order-details {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-stats {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,128 @@
+import axios from 'axios';
+
+const API_URL = 'http://localhost:5000/api';
+
+const api = axios.create({
+    baseURL: API_URL,
+    headers: {
+        'Content-Type': 'application/json'
+    }
+});
+
+// ==========================================
+// PRODUCTOS
+// ==========================================
+
+export const getProducts = async () => {
+    try {
+        const response = await api.get('/products');
+        return response.data;
+    } catch (error) {
+        console.error('Error al obtener productos:', error);
+        throw error;
+    }
+};
+
+export const getProductById = async (id) => {
+    try {
+        const response = await api.get(`/products/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error al obtener producto:', error);
+        throw error;
+    }
+};
+
+export const createProduct = async (formData) => {
+    try {
+        const response = await api.post('/products', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error al crear producto:', error);
+        throw error;
+    }
+};
+
+export const updateProduct = async (id, formData) => {
+    try {
+        const response = await api.put(`/products/${id}`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error al actualizar producto:', error);
+        throw error;
+    }
+};
+
+export const deleteProduct = async (id) => {
+    try {
+        const response = await api.delete(`/products/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error al eliminar producto:', error);
+        throw error;
+    }
+};
+
+export const searchProducts = async (query, categoria = null) => {
+    try {
+        let url = `/products/search?q=${query}`;
+        if (categoria) {
+            url += `&categoria=${categoria}`;
+        }
+        const response = await api.get(url);
+        return response.data;
+    } catch (error) {
+        console.error('Error al buscar productos:', error);
+        throw error;
+    }
+};
+
+// ==========================================
+// PEDIDOS
+// ==========================================
+
+export const createOrder = async (orderData) => {
+    try {
+        const response = await api.post('/orders', orderData);
+        return response.data;
+    } catch (error) {
+        console.error('Error al crear pedido:', error);
+        throw error;
+    }
+};
+
+export const getOrders = async () => {
+    try {
+        const response = await api.get('/orders');
+        return response.data;
+    } catch (error) {
+        console.error('Error al obtener pedidos:', error);
+        throw error;
+    }
+};
+
+export const getOrderById = async (id) => {
+    try {
+        const response = await api.get(`/orders/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error al obtener pedido:', error);
+        throw error;
+    }
+};
+
+export const updateOrderStatus = async (id, estado) => {
+    try {
+        const response = await api.put(`/orders/${id}/status`, { estado });
+        return response.data;
+    } catch (error) {
+        console.error('Error al actualizar estado:', error);
+        throw error;
+    }
+};
+
+export default api;

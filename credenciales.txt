@@ -1,0 +1,13 @@
+📋 FIREBASE CREDENTIALS
+═══════════════════════════════════════════════
+SENDER ID:     986566211666
+VAPID KEY:     BAyuR_vabg4_s5lxG4ObnNUuLS9UVgrnw-jymyvWcDW17tz-SYSA0GsAC7SfdIJY-0bPmXN3QfsAfS2A8zukTkg
+TOKEN FCM:     etckn7UtdZhduiOa6Qk6zD:APA91bEjyYR1gqPhmyZxCZVHUCILH4ihdA1ivhZhu9ZgEW_BnqhZTomGuw-X6rJ9PKiRkKZGruK5OvRf4eOycA3bi9G70vhN-i1QJ6iIzdqDQ1QKtRuvNhY
+═══════════════════════════════════════════════
+
+📋 TELEGRAM
+═══════════════════════════════════════════════
+BOT TOKEN:     8741522444:AAFLxTOG28JlllMoep1fCdfdaJJGv9-XARM
+CHAT ID:       1927496400
+USERNAME:      @Usupatriz
+═══════════════════════════════════════════════

@@ -1,0 +1,145 @@
+/* ========================================
+   RESET Y VARIABLES GLOBALES - ELEGANTE
+   ======================================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg-primary: #1a1410;
+  --bg-secondary: #0d0a08;
+  --bg-card: #2a1f1a;
+  --bg-card-hover: #342722;
+  --text-primary: #f5eee6;
+  --text-secondary: #c4b5a5;
+  --text-muted: #8a7a6a;
+
+  --gold: #d4a853;
+  --gold-light: #e8c97a;
+  --gold-dark: #b8923f;
+  --gold-muted: #c4a86a;
+  --gold-glow: 0 0 30px rgba(212, 168, 83, 0.15);
+  --gold-glow-strong: 0 0 60px rgba(212, 168, 83, 0.25);
+
+  --cream: #e8d5c4;
+  --border-color: rgba(212, 168, 83, 0.10);
+  --shadow-neon: 0 0 30px rgba(212, 168, 83, 0.05);
+
+  --transition: all 0.3s ease;
+  --border-radius: 16px;
+  --container: 1400px;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Georgia', 'Times New Roman', 'Segoe UI', serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.7;
+  overflow-x: hidden;
+  background-image: url('/images/fondo-general.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(10, 8, 6, 0.88);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: transparent;
+  position: relative;
+  z-index: 1;
+}
+
+.main-content {
+  flex: 1;
+  padding: 2rem;
+  max-width: var(--container);
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ========================================
+   SCROLLBAR PERSONALIZADA
+   ======================================== */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--gold);
+  border-radius: 4px;
+  box-shadow: var(--gold-glow);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gold-light);
+}
+
+/* ========================================
+   BOTONES GLOBALES
+   ======================================== */
+.btn-primary,
+.btn-secondary {
+  padding: 0.8rem 2rem;
+  border: none;
+  border-radius: 50px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  letter-spacing: 0.5px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  color: #1a1410;
+  box-shadow: var(--gold-glow);
+  border: 1px solid rgba(212, 168, 83, 0.2);
+}
+
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--gold-glow-strong);
+}
+
+.btn-secondary {
+  background: rgba(212, 168, 83, 0.06);
+  color: var(--gold);
+  border: 1px solid rgba(212, 168, 83, 0.15);
+  backdrop-filter: blur(10px);
+}
+
+.btn-secondary:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--gold-glow);
+  background: rgba(212, 168, 83, 0.10);
+}
