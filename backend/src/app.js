@@ -12,6 +12,7 @@ const productRoutes = require('./routes/productRoutes');
 const authRoutes = require('./routes/authRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const notificationRoutes = require('./routes/notificationRoutes'); // 🔥 NUEVO
+const userRoutes = require('./routes/userRoutes'); // 🔥 NUEVO USUARIOS
 
 const app = express();
 
@@ -29,7 +30,8 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.use('/api/products', productRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/orders', orderRoutes);
-app.use('/api/notifications', notificationRoutes); // 🔥 NUEVO
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/users', userRoutes); // 🔥 RUTA USUARIOS
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -89,7 +91,8 @@ async function startServer() {
         console.log(`📡 Health: http://localhost:${PORT}/api/health`);
         console.log(`📦 Productos: http://localhost:${PORT}/api/products`);
         console.log(`🛒 Pedidos: http://localhost:${PORT}/api/orders`);
-        console.log(`📨 Notificaciones: http://localhost:${PORT}/api/notifications`); // 🔥 NUEVO
+        console.log(`📨 Notificaciones: http://localhost:${PORT}/api/notifications`);
+        console.log(`👥 Usuarios: http://localhost:${PORT}/api/users`); // 🔥 NUEVO
         
         if (dbConnected) {
             console.log('✅ Base de datos conectada correctamente.');

@@ -1,12 +1,9 @@
 import { createContext, useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import axios from 'axios';
 
-// Credenciales de ejemplo (después vendrán del backend)
-const ADMIN_CREDENTIALS = {
-  email: 'admin@reposteria.com',
-  password: 'Admin123!'
-};
+const API_URL = 'https://reposteria-backend-motu.onrender.com/api';
 
 const AuthContext = createContext();
 
@@ -29,31 +26,23 @@ export const AuthProvider = ({ children }) => {
 
   // Iniciar sesión
   const login = async (email, password) => {
-    // Simular llamada a API (después conectaremos con backend)
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        if (email === ADMIN_CREDENTIALS.email && password === ADMIN_CREDENTIALS.password) {
-          const userData = {
-            id: 1,
-            name: 'Administrador',
-            email: email,
-            role: 'admin'
-          };
-          
-          // Guardar en localStorage
-          localStorage.setItem('admin_token', 'fake-jwt-token');
-          localStorage.setItem('admin_user', JSON.stringify(userData));
-          
-          setIsAuthenticated(true);
-          setUser(userData);
-          toast.success('🎉 ¡Bienvenido Administrador!');
-          resolve(userData);
-        } else {
-          toast.error('❌ Credenciales incorrectas');
-          reject(new Error('Credenciales inválidas'));
-        }
-      }, 1000);
-    });
+    try {
+      const response = await axios.post(`${API_URL}/auth/login`, { email, password });
+      const userData = response.data.user;
+      
+      // Guardar en localStorage
+      localStorage.setItem('admin_token', response.data.token);
+      localStorage.setItem('admin_user', JSON.stringify(userData));
+      
+      setIsAuthenticated(true);
+      setUser(userData);
+      toast.success('🎉 ¡Bienvenido Administrador!');
+      return userData;
+    } catch (error) {
+      console.error('Error al intentar login:', error);
+      toast.error('❌ Credenciales incorrectas');
+      throw new Error('Credenciales inválidas');
+    }
   };
 
   // Cerrar sesión
