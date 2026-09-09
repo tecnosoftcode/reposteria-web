@@ -52,7 +52,7 @@ export const requestPermission = async () => {
 // Guardar token en el backend
 const saveTokenToServer = async (token) => {
   try {
-    const response = await fetch('http://localhost:5000/api/notifications/register', {
+    const response = await fetch('https://reposteria-backend-motu.onrender.com/api/notifications/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

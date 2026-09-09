@@ -1,19 +1,6 @@
 // backend/src/controllers/notificationController.js
-const Token = require('../models/Token');
-
-// Importar Firebase Admin (puede ser null si no se inicializó)
-let admin;
-try {
-  admin = require('../config/firebase');
-  if (!admin) {
-    console.error('❌ Firebase Admin no está disponible');
-  } else {
-    console.log('✅ Firebase Admin cargado correctamente');
-  }
-} catch (error) {
-  console.error('❌ Error cargando Firebase:', error.message);
-  admin = null;
-}
+const db = require('../config/database').pool;
+const { getMessaging } = require('firebase-admin/messaging');
 
 // Registrar token
 const registerToken = async (req, res) => {
@@ -30,9 +17,13 @@ const registerToken = async (req, res) => {
       });
     }
 
-    const result = await Token.saveToken(token, userId);
+    // 🔥 GUARDAR TOKEN DIRECTAMENTE EN LA BASE DE DATOS usando el pool
+    const [result] = await db.execute(
+      'INSERT INTO tokens (token, user_id, updated_at) VALUES (?, ?, NOW()) ON DUPLICATE KEY UPDATE updated_at = NOW(), user_id = COALESCE(?, user_id)',
+      [token, userId, userId]
+    );
+    
     console.log('✅ Token guardado en DB:', result);
-
     res.json({
       success: true,
       message: 'Token registrado exitosamente'
@@ -49,18 +40,14 @@ const registerToken = async (req, res) => {
 // Enviar notificación a un dispositivo
 const sendToDevice = async (token, title, body, data = {}) => {
   try {
-    if (!admin) {
-      console.error('❌ Firebase Admin no inicializado');
-      return null;
-    }
-
+    const messaging = getMessaging();
     const message = {
       notification: { title, body },
       data: data,
       token: token,
     };
 
-    const response = await admin.messaging().send(message);
+    const response = await messaging.send(message);
     console.log('✅ Notificación enviada a dispositivo:', response);
     return response;
   } catch (error) {
@@ -72,19 +59,16 @@ const sendToDevice = async (token, title, body, data = {}) => {
 // Enviar a todos los dispositivos
 const sendToAll = async (title, body, data = {}) => {
   try {
-    if (!admin) {
-      console.error('❌ Firebase Admin no inicializado, omitiendo notificaciones FCM');
-      return { successCount: 0, failureCount: 0, error: 'Firebase no disponible' };
-    }
-
-    const tokens = await Token.getAllTokens();
+    const messaging = getMessaging();
+    const [tokensRows] = await db.execute('SELECT token FROM tokens');
+    const tokens = tokensRows.map(row => row.token);
     
     if (tokens.length === 0) {
       console.log('⚠️ No hay tokens registrados');
       return { successCount: 0, failureCount: 0 };
     }
 
-    const response = await admin.messaging().sendEachForMulticast({
+    const response = await messaging.sendEachForMulticast({
       notification: { title, body },
       data: data,
       tokens: tokens
@@ -96,7 +80,7 @@ const sendToAll = async (title, body, data = {}) => {
     if (response.failureCount > 0) {
       for (let i = 0; i < response.responses.length; i++) {
         if (!response.responses[i].success) {
-          await Token.deleteToken(tokens[i]);
+          await db.execute('DELETE FROM tokens WHERE token = ?', [tokens[i]]);
         }
       }
     }
