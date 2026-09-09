@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import ProductCard from '../components/products/ProductCard';
 import { FaSearch, FaTimes, FaTh } from 'react-icons/fa';
-import { getProducts } from '../services/api';
+import { getProducts, getCategories } from '../services/api';
 
 const ProductsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -14,49 +15,32 @@ const ProductsPage = () => {
   const [error, setError] = useState(null);
 
   // ==========================================
-  // CARGAR PRODUCTOS
+  // CARGAR PRODUCTOS Y CATEGORÍAS
   // ==========================================
   useEffect(() => {
-    const loadProducts = async () => {
+    const loadData = async () => {
       try {
         setLoading(true);
         setError(null);
-        const data = await getProducts();
-        setProducts(data);
+        const [productsData, categoriesData] = await Promise.all([
+          getProducts(),
+          getCategories()
+        ]);
+        setProducts(productsData);
+        setCategories(categoriesData);
         const categoryFromUrl = searchParams.get('categoria') || 'todos';
         setSelectedCategory(categoryFromUrl);
-        applyFilters(data, '', categoryFromUrl);
+        applyFilters(productsData, '', categoryFromUrl);
       } catch (err) {
-        console.error('Error cargando productos:', err);
-        setError('Error al cargar productos. Asegúrate de que el backend esté corriendo.');
+        console.error('Error cargando datos:', err);
+        setError('Error al cargar productos.');
       } finally {
         setLoading(false);
       }
     };
 
-    loadProducts();
+    loadData();
   }, []);
-
-  // ==========================================
-  // OBTENER CATEGORÍAS
-  // ==========================================
-  const categories = ['todos', ...new Set(
-    products.map(p => p.categoria_nombre || p.category || '').filter(Boolean)
-  )];
-
-  // ==========================================
-  // OBTENER ÍCONO DE CATEGORÍA
-  // ==========================================
-  const getCategoryIcon = (category) => {
-    const icons = {
-      'todos': '📦',
-      'tortas': '🎂',
-      'marquesas': '🍫',
-      'quesillos': '🧀',
-      'postres': '🍮'
-    };
-    return icons[category] || '📦';
-  };
 
   // ==========================================
   // FUNCIÓN PARA APLICAR FILTROS
@@ -75,7 +59,7 @@ const ProductsPage = () => {
 
     if (category && category !== 'todos') {
       filtered = filtered.filter(p => {
-        const cat = p.categoria_nombre || p.category || '';
+        const cat = p.categoria_id;
         return cat === category;
       });
     }
@@ -146,7 +130,7 @@ const ProductsPage = () => {
           <h2>❌ Error</h2>
           <p>{error}</p>
           <p style={{ fontSize: '0.9rem', color: 'gray' }}>
-            💡 Asegúrate de que el backend esté corriendo en http://localhost:5000
+            💡 Asegúrate de que el backend esté corriendo
           </p>
           <button 
             className="btn-primary" 
@@ -201,23 +185,27 @@ const ProductsPage = () => {
         </div>
 
         <div className="category-filters">
-          {categories.map(category => (
-            <button
-              key={category}
-              className={`category-filter-btn ${selectedCategory === category ? 'active' : ''}`}
-              onClick={() => handleCategoryChange(category)}
-            >
-              <span className="cat-icon">{getCategoryIcon(category)}</span>
-              <span className="cat-name">
-                {category === 'todos' ? 'Todos' : category.charAt(0).toUpperCase() + category.slice(1)}
-              </span>
-              <span className="cat-count">
-                {category === 'todos' 
-                  ? products.length 
-                  : products.filter(p => (p.categoria_nombre || p.category || '') === category).length}
-              </span>
-            </button>
-          ))}
+          {['todos', ...categories.map(cat => cat.id)].map(categoryId => {
+            const cat = categories.find(c => c.id === categoryId);
+            const label = categoryId === 'todos' ? 'Todos' : (cat ? cat.nombre : '');
+            const icon = categoryId === 'todos' ? '📦' : (cat ? cat.icono || '🍰' : '');
+            
+            return (
+              <button
+                key={categoryId}
+                className={`category-filter-btn ${selectedCategory === categoryId ? 'active' : ''}`}
+                onClick={() => handleCategoryChange(categoryId)}
+              >
+                <span className="cat-icon">{icon}</span>
+                <span className="cat-name">{label}</span>
+                <span className="cat-count">
+                  {categoryId === 'todos' 
+                    ? products.length 
+                    : products.filter(p => p.categoria_id === categoryId).length}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
         {/* 🔥 Solo el botón de cuadrícula, sin lista */}
