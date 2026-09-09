@@ -2,7 +2,7 @@ import { useState, useContext, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { CartContext } from '../context/CartContext';
 import { FaTrash, FaPlus, FaMinus, FaWhatsapp, FaCreditCard, FaMoneyBill, FaCheckCircle } from 'react-icons/fa';
-import { createOrder } from '../services/api';
+import { createOrder, getSettings } from '../services/api';
 import toast from 'react-hot-toast';
 
 const CheckoutPage = () => {
@@ -11,6 +11,7 @@ const CheckoutPage = () => {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderId, setOrderId] = useState(null);
+  const [settings, setSettings] = useState(null);
   
   // 🔥 IMPORTANTE: Guardar copia del carrito para la confirmación
   const [orderItems, setOrderItems] = useState([]);
@@ -29,9 +30,16 @@ const CheckoutPage = () => {
     metodoPago: 'efectivo'
   });
 
+  // 🔥 Cargar configuración de la tienda
+  useEffect(() => {
+    getSettings().then(setSettings).catch(console.error);
+  }, []);
+
   // Calcular totales
   const subtotal = getCartTotal();
-  const shipping = subtotal > 50 ? 0 : 5.00;
+  
+  // 🔥 Usar el precio de delivery configurado por el admin
+  const shipping = settings ? parseFloat(settings.delivery_price) || 0 : 5.00;
   const total = subtotal + shipping;
 
   // ==========================================
@@ -175,11 +183,6 @@ const CheckoutPage = () => {
               <span>Total</span>
               <span>${total.toFixed(2)}</span>
             </div>
-            {subtotal < 50 && (
-              <div className="shipping-notice">
-                🚚 ¡Agrega ${(50 - subtotal).toFixed(2)} más para envío gratis!
-              </div>
-            )}
           </div>
 
           <div className="checkout-actions">
@@ -324,6 +327,22 @@ const CheckoutPage = () => {
           </div>
         </div>
 
+        {/* 🔥 MOSTRAR MÉTODOS DE PAGO CONFIGURADOS POR EL ADMIN */}
+        {settings?.payment_methods?.length > 0 && (
+          <div className="settings-payment-methods">
+            <h4>💳 Datos para pago (configurados por la tienda)</h4>
+            {settings.payment_methods.map((method, index) => (
+              <div key={index} className="payment-method-info">
+                <span className="method-icon">{method.icon}</span>
+                <div>
+                  <strong>{method.name}</strong>
+                  <p>{method.details}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
         <div className="checkout-actions">
           <button type="button" className="btn-secondary" onClick={() => setStep(1)}>
             ← Volver al carrito
@@ -342,10 +361,9 @@ const CheckoutPage = () => {
   );
 
   // ==========================================
-  // RENDER - PASO 3 (CONFIRMACIÓN) - 🔥 CORREGIDO
+  // RENDER - PASO 3 (CONFIRMACIÓN)
   // ==========================================
   const renderConfirmation = () => {
-    // Usar los datos guardados o el carrito si aún existe
     const itemsToShow = orderItems.length > 0 ? orderItems : cart;
     const totalToShow = orderTotal > 0 ? orderTotal : total;
     const subtotalToShow = orderSubtotal > 0 ? orderSubtotal : subtotal;

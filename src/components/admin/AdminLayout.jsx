@@ -1,6 +1,6 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { FaUserCircle, FaSignOutAlt, FaHome, FaBox, FaList, FaChartBar, FaUsers, FaTags } from 'react-icons/fa';
+import { FaUserCircle, FaSignOutAlt, FaHome, FaBox, FaList, FaChartBar, FaUsers, FaTags, FaCog } from 'react-icons/fa';
 import OrderNotification from './OrderNotification';
 
 const AdminLayout = () => {
@@ -51,6 +51,12 @@ const AdminLayout = () => {
                         className={`admin-nav-link ${isActive('categories') ? 'active' : ''}`}
                     >
                         <FaTags /> Categorías
+                    </Link>
+                    <Link 
+                        to="/admin/settings" 
+                        className={`admin-nav-link ${isActive('settings') ? 'active' : ''}`}
+                    >
+                        <FaCog /> Configuración
                     </Link>
                 </div>
 

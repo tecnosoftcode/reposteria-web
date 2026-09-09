@@ -15,6 +15,7 @@ const orderRoutes = require('./routes/orderRoutes');
 const notificationRoutes = require('./routes/notificationRoutes'); // 🔥 NUEVO
 const userRoutes = require('./routes/userRoutes'); // 🔥 NUEVO USUARIOS
 const categoryRoutes = require('./routes/categoryRoutes');
+const settingsRoutes = require('./routes/settingsRoutes');
 
 const app = express();
 
@@ -35,6 +36,8 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/users', userRoutes); // 🔥 RUTA USUARIOS
 app.use('/api/categories', categoryRoutes); // 🔥 RUTA CATEGORÍAS
+app.use('/api/settings', settingsRoutes); // 🔥 RUTA CONFIGURACIÓN
+
 // Health check
 app.get('/api/health', (req, res) => {
     res.json({ 
@@ -94,7 +97,9 @@ async function startServer() {
         console.log(`📦 Productos: http://localhost:${PORT}/api/products`);
         console.log(`🛒 Pedidos: http://localhost:${PORT}/api/orders`);
         console.log(`📨 Notificaciones: http://localhost:${PORT}/api/notifications`);
-        console.log(`👥 Usuarios: http://localhost:${PORT}/api/users`); // 🔥 NUEVO
+        console.log(`👥 Usuarios: http://localhost:${PORT}/api/users`);
+        console.log(`🏷️ Categorías: http://localhost:${PORT}/api/categories`);
+        console.log(`⚙️ Configuración: http://localhost:${PORT}/api/settings`);
         
         if (dbConnected) {
             console.log('✅ Base de datos conectada correctamente.');
