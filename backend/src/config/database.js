@@ -8,6 +8,7 @@ const pool = mysql.createPool({
     password: process.env.DB_PASSWORD || '',
     database: process.env.DB_NAME || 'reposteria_db',
     port: process.env.DB_PORT || 3306,
+    charset: 'utf8mb4', // 🔥 ESTO HACE QUE LOS EMOJIS SE GUARDEN BIEN
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
