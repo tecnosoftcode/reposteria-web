@@ -14,16 +14,16 @@ exports.getCategories = async (req, res) => {
 
 // Crear nueva categoría
 exports.createCategory = async (req, res) => {
-    const { nombre, icono } = req.body;
+    const { nombre } = req.body;
     if (!nombre) {
         return res.status(400).json({ error: 'Nombre es obligatorio' });
     }
     try {
         const [result] = await db.query(
-            'INSERT INTO categorias (nombre, icono) VALUES (?, ?)',
-            [nombre, icono || null]
+            'INSERT INTO categorias (nombre) VALUES (?)',
+            [nombre]
         );
-        res.status(201).json({ id: result.insertId, nombre, icono: icono || null });
+        res.status(201).json({ id: result.insertId, nombre });
     } catch (error) {
         console.error('Error creando categoría:', error);
         if (error.code === 'ER_DUP_ENTRY') {
@@ -36,14 +36,14 @@ exports.createCategory = async (req, res) => {
 // Editando categoría
 exports.updateCategory = async (req, res) => {
     const { id } = req.params;
-    const { nombre, icono } = req.body;
+    const { nombre } = req.body;
     if (!nombre) {
         return res.status(400).json({ error: 'Nombre es obligatorio' });
     }
     try {
         await db.query(
-            'UPDATE categorias SET nombre = ?, icono = ? WHERE id = ?',
-            [nombre, icono || null, id]
+            'UPDATE categorias SET nombre = ? WHERE id = ?',
+            [nombre, id]
         );
         res.json({ message: 'Categoría actualizada' });
     } catch (error) {
