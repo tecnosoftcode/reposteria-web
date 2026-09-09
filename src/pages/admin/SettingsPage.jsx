@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { FaSave, FaPlus, FaTrash } from 'react-icons/fa';
 import toast from 'react-hot-toast';
 import { getSettings, updateSettings } from '../../services/api';
-import '../styles/admin/settings.css'; // 🔥 IMPORTACIÓN DEL CSS
+import '../../styles/admin/settings.css';
 
 const SettingsPage = () => {
     const [deliveryPrice, setDeliveryPrice] = useState(0);
