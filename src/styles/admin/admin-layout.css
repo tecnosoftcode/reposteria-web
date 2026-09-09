@@ -103,7 +103,7 @@
 .user-menu-trigger {
   background: none;
   border: none;
-  font-size: 1.8rem;
+  font-size: 1.6rem;
   color: var(--gold);
   cursor: pointer;
   padding: 0.3rem;
@@ -116,20 +116,20 @@
 }
 
 .user-avatar-icon {
-  width: 30px;
-  height: 30px;
+  width: 26px;
+  height: 26px;
 }
 
 .user-dropdown-menu {
   position: absolute;
   top: 100%;
   right: 0;
-  background: rgba(10, 10, 10, 0.98);
-  border: 1px solid var(--border-color);
+  background: rgba(20, 15, 10, 0.98);
+  border: 1px solid rgba(212, 168, 83, 0.2);
   border-radius: 12px;
   padding: 1rem;
-  min-width: 180px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  min-width: 190px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
   z-index: 1001;
 }
 
@@ -137,21 +137,27 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: var(--text-secondary);
-  margin-bottom: 0.8rem;
+  color: var(--gold);
+  margin-bottom: 0.5rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid rgba(212, 168, 83, 0.2);
 }
 
 .user-dropdown-header .user-avatar {
   width: 25px;
   height: 25px;
   border-radius: 50%;
-  background: rgba(212, 168, 83, 0.1);
+  background: rgba(212, 168, 83, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.9rem;
+}
+
+.user-dropdown-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--gold);
 }
 
 .logout-btn {
@@ -164,20 +170,71 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   text-decoration: none;
   width: 100%;
 }
 
 .logout-btn:hover {
   color: var(--gold);
+  background: rgba(212, 168, 83, 0.05);
+  border-radius: 8px;
 }
 
-/* Contenido */
-.admin-content {
-  padding: 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
+/* ========================================
+   DASHBOARD STATS - COMPACTOS
+   ======================================== */
+.dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.8rem;
+  margin-bottom: 1.5rem;
+}
+
+.dashboard-stats .stat-card {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.8rem;
+  background: var(--bg-card);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  transition: var(--transition);
+  max-width: 400px;
+}
+
+.dashboard-stats .stat-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--gold);
+  box-shadow: 0 0 20px rgba(212, 168, 83, 0.05);
+}
+
+.dashboard-stats .stat-icon {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+  background: rgba(212, 168, 83, 0.1);
+}
+
+.dashboard-stats .stat-info {
+  flex: 1;
+}
+
+.dashboard-stats .stat-value {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: var(--gold);
+  display: block;
+}
+
+.dashboard-stats .stat-label {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
 }
 
 /* ========================================
@@ -186,5 +243,9 @@
 @media (max-width: 768px) {
   .admin-content {
     padding: 0.5rem;
+  }
+
+  .dashboard-stats {
+    grid-template-columns: 1fr;
   }
 }

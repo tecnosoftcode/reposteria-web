@@ -1,20 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { FaBars, FaTimes, FaHome, FaBox, FaList, FaChartBar, FaUsers, FaTags, FaCog, FaUserCircle } from 'react-icons/fa';
+import { FaBars, FaTimes, FaHome, FaBox, FaList, FaChartBar, FaUsers, FaTags, FaCog, FaUserCircle, FaSignOutAlt } from 'react-icons/fa';
 import OrderNotification from './OrderNotification';
 
 const AdminLayout = () => {
     const { user, logout } = useAuth();
     const location = useLocation();
-    const [menuOpen, setMenuOpen] = useState(false); // Estado para el menú hamburguesa
-    const [userMenuOpen, setUserMenuOpen] = useState(false); // Estado para el menú del usuario
-
-    // Función para saber si un enlace está activo
-    const isActive = (path) => {
-        return location.pathname === `/admin/${path}` || 
-               (path === 'dashboard' && location.pathname === '/admin/dashboard');
-    };
+    const [menuOpen, setMenuOpen] = useState(false);
+    const [userMenuOpen, setUserMenuOpen] = useState(false);
 
     // Cerrar menús al cambiar de ruta
     useEffect(() => {
@@ -22,10 +16,14 @@ const AdminLayout = () => {
         setUserMenuOpen(false);
     }, [location.pathname]);
 
+    const isActive = (path) => {
+        return location.pathname === `/admin/${path}` || 
+               (path === 'dashboard' && location.pathname === '/admin/dashboard');
+    };
+
     return (
         <div className="admin-layout">
             <nav className="admin-nav">
-                {/* LOGO + BOTÓN MENÚ */}
                 <div className="admin-nav-brand">
                     <span>🍰</span>
                     <span>Panel Admin</span>
@@ -37,7 +35,6 @@ const AdminLayout = () => {
                     </button>
                 </div>
 
-                {/* MENÚ DESPLEGABLE (se muestra cuando menuOpen es true) */}
                 {menuOpen && (
                     <div className="admin-nav-links">
                         <Link 
@@ -79,7 +76,6 @@ const AdminLayout = () => {
                     </div>
                 )}
 
-                {/* ACCIONES DEL USUARIO */}
                 <div className="admin-nav-actions">
                     <OrderNotification />
                     
@@ -95,7 +91,7 @@ const AdminLayout = () => {
                             <div className="user-dropdown-menu">
                                 <div className="user-dropdown-header">
                                     <span className="user-avatar">👤</span>
-                                    <span>{user?.name || 'Administrador'}</span>
+                                    <span className="user-dropdown-name">{user?.name || 'Administrador'}</span>
                                 </div>
                                 <Link to="/" className="logout-btn">
                                     <FaHome /> Ver tienda
