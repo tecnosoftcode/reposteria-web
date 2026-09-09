@@ -6,6 +6,7 @@ require('dotenv').config();
 
 const { testConnection } = require('./config/database');
 const { initializeSocket } = require('./socket');
+const firebaseAdmin = require('./config/firebase'); // 🔥 IMPORTANTE: Inicializa Firebase
 
 // Importar rutas
 const productRoutes = require('./routes/productRoutes');
