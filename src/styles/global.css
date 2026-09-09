@@ -143,3 +143,42 @@ body::before {
   box-shadow: var(--gold-glow);
   background: rgba(212, 168, 83, 0.10);
 }
+
+/* ========================================
+   RESPONSIVE GLOBAL
+   ======================================== */
+
+@media (max-width: 768px) {
+  .main-content {
+    padding: 1rem;
+    width: 100%;
+  }
+
+  .app-container {
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  /* Botones globales en móvil */
+  .btn-primary,
+  .btn-secondary {
+    padding: 0.6rem 1.5rem;
+    font-size: 0.85rem;
+    width: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-content {
+    padding: 0.5rem;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    padding: 0.5rem 1.2rem;
+    font-size: 0.8rem;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+}

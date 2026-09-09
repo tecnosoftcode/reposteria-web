@@ -103,6 +103,7 @@
   cursor: pointer;
   transition: var(--transition);
   font-weight: 500;
+  text-decoration: none;
 }
 
 .logout-btn:hover {
@@ -118,7 +119,11 @@
   margin: 0 auto;
 }
 
-@media (max-width: 768px) {
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+@media (max-width: 1024px) {
   .admin-nav {
     flex-direction: column;
     gap: 0.5rem;
@@ -126,14 +131,12 @@
   }
 
   .admin-nav-links {
-    flex-wrap: wrap;
     justify-content: center;
   }
 
   .admin-nav-user {
     width: 100%;
     justify-content: center;
-    flex-wrap: wrap;
   }
 
   .admin-content {
@@ -141,9 +144,50 @@
   }
 }
 
+@media (max-width: 768px) {
+  .admin-layout {
+    width: 100% !important;
+    overflow-x: hidden !important;
+  }
+
+  .admin-nav {
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+    padding: 0.5rem !important;
+    width: 100% !important;
+  }
+
+  .admin-nav-links {
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    gap: 0.5rem !important;
+    width: 100% !important;
+  }
+
+  .admin-nav-link {
+    font-size: 0.75rem !important;
+    padding: 0.4rem 0.6rem !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.3rem !important;
+  }
+
+  .admin-nav-user {
+    flex-direction: column !important;
+    align-items: center !important;
+    width: 100% !important;
+    gap: 0.5rem !important;
+  }
+
+  .admin-content {
+    padding: 0.5rem !important;
+    width: 100% !important;
+  }
+}
+
 @media (max-width: 480px) {
   .admin-nav-link {
-    font-size: 0.8rem;
-    padding: 0.3rem 0.6rem;
+    font-size: 0.65rem !important;
+    padding: 0.3rem 0.4rem !important;
   }
 }

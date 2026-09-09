@@ -68,7 +68,7 @@ const AdminLayout = () => {
                             <span className="user-avatar">👤</span>
                             <span>{user?.name || 'Administrador'}</span>
                         </div>
-                        <Link to="/" className="logout-btn" style={{ textDecoration: 'none', color: 'white' }}>
+                        <Link to="/" className="logout-btn">
                             <FaHome /> Ver tienda
                         </Link>
                         <button className="logout-btn" onClick={logout}>

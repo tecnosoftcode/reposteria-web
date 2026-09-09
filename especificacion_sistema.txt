@@ -1,0 +1,19 @@
+Especificación técnica del sistema:
+
+Frontend: React (JavaScript/JSX) + Vite (bundler/build tool) + CSS personalizado (Neón/Marrón).
+
+Backend: Node.js + Express.js.
+
+Base de datos: MySQL (alojada en Clever Cloud).
+
+Hosting del backend y frontend: Render (Web Service gratuito).
+
+Control de versiones: GitHub.
+
+Autenticación: JWT (JSON Web Token) + bcryptjs.
+
+Notificaciones: Firebase Cloud Messaging (FCM) + Socket.io.
+
+Subida de archivos: Multer.
+
+Alertas en tiempo real: Telegram Bot API.
