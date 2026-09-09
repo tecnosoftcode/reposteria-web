@@ -186,10 +186,10 @@
    ======================================== */
 .dashboard-stats {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 🔥 3 EN FILA */
+  grid-template-columns: repeat(3, 1fr); /* 🔥 3 EN FILA (DESKTOP) */
   gap: 0.6rem;
   margin-bottom: 1.5rem;
-  max-width: 850px; /* 🔥 REDUCIR EL ANCHO DEL CONTENEDOR */
+  max-width: 850px;
   width: 100%;
 }
 
@@ -250,10 +250,29 @@
     grid-template-columns: repeat(2, 1fr); /* 🔥 2 EN FILA EN MÓVILES */
     max-width: 100%;
   }
+
+  .dashboard-stats .stat-card {
+    padding: 0.5rem;
+  }
+
+  .dashboard-stats .stat-icon {
+    width: 25px;
+    height: 25px;
+    font-size: 0.8rem;
+  }
+
+  .dashboard-stats .stat-value {
+    font-size: 0.9rem;
+  }
+
+  .dashboard-stats .stat-label {
+    font-size: 0.6rem;
+  }
 }
 
 @media (max-width: 480px) {
   .dashboard-stats {
-    grid-template-columns: 1fr; /* 🔥 1 EN COLUMNA EN PANTALLAS MUY PEQUEÑAS */
+    grid-template-columns: repeat(2, 1fr); /* 🔥 SIGUE SIENDO 2 EN FILA */
+    max-width: 100%;
   }
 }
