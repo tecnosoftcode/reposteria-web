@@ -4,10 +4,11 @@ import {
   FaSearch, FaCloudUploadAlt
 } from 'react-icons/fa';
 import toast from 'react-hot-toast';
-import { createProduct, updateProduct, deleteProduct, getProducts } from '../../services/api';
+import { createProduct, updateProduct, deleteProduct, getProducts, getCategories } from '../../services/api';
 
 const AdminPage = () => {
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [currentProduct, setCurrentProduct] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -15,19 +16,10 @@ const AdminPage = () => {
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef(null);
 
-  // Categorías disponibles
-  const categories = ['todos', 'tortas', 'marquesas', 'quesillos', 'postres'];
-  const categoryMap = {
-    'tortas': 1,
-    'marquesas': 2,
-    'quesillos': 3,
-    'postres': 4
-  };
-
   // Estado para el formulario
   const [formData, setFormData] = useState({
     name: '',
-    category: 'tortas',
+    category: '',
     price: '',
     description: '',
     image: '',
@@ -39,7 +31,7 @@ const AdminPage = () => {
   });
 
   // ==========================================
-  // CARGAR PRODUCTOS
+  // CARGAR PRODUCTOS Y CATEGORÍAS
   // ==========================================
   const loadProducts = async () => {
     try {
@@ -54,9 +46,20 @@ const AdminPage = () => {
     }
   };
 
+  const loadCategories = async () => {
+    try {
+      const data = await getCategories();
+      setCategories(data);
+    } catch (error) {
+      console.error('Error cargando categorías:', error);
+      toast.error('Error al cargar categorías');
+    }
+  };
+
   // Cargar al montar
   useEffect(() => {
     loadProducts();
+    loadCategories();
   }, []);
 
   // ==========================================
@@ -100,7 +103,7 @@ const AdminPage = () => {
     setCurrentProduct(null);
     setFormData({
       name: '',
-      category: 'tortas',
+      category: categories[0]?.id || '',
       price: '',
       description: '',
       image: '',
@@ -120,7 +123,7 @@ const AdminPage = () => {
     setCurrentProduct(product);
     setFormData({
       name: product.nombre || product.name || '',
-      category: product.categoria_nombre || product.category || 'tortas',
+      category: product.categoria_id || '',
       price: product.precio || product.price || '',
       description: product.descripcion || product.description || '',
       image: product.imagen || product.image || '',
@@ -140,7 +143,7 @@ const AdminPage = () => {
     setCurrentProduct(null);
     setFormData({
       name: '',
-      category: 'tortas',
+      category: categories[0]?.id || '',
       price: '',
       description: '',
       image: '',
@@ -187,7 +190,7 @@ const AdminPage = () => {
       formDataToSend.append('nombre', formData.name.trim());
       formDataToSend.append('descripcion', formData.description.trim());
       formDataToSend.append('precio', parseFloat(formData.price));
-      formDataToSend.append('categoria_id', categoryMap[formData.category] || 1);
+      formDataToSend.append('categoria_id', formData.category);
       formDataToSend.append('descuento', parseInt(formData.discount) || 0);
       formDataToSend.append('en_stock', formData.inStock ? '1' : '0');
 
@@ -253,9 +256,9 @@ const AdminPage = () => {
   // ==========================================
   const filteredProducts = products.filter(product => {
     const nombre = product.nombre || product.name || '';
-    const categoria = product.categoria_nombre || product.category || '';
+    const categoriaId = product.categoria_id;
     const matchSearch = nombre.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchCategory = filterCategory === 'todos' || categoria === filterCategory;
+    const matchCategory = filterCategory === 'todos' || categoriaId === filterCategory;
     return matchSearch && matchCategory;
   });
 
@@ -266,7 +269,7 @@ const AdminPage = () => {
     totalProducts: products.length,
     inStock: products.filter(p => (p.en_stock !== false && p.inStock !== false)).length,
     outOfStock: products.filter(p => (p.en_stock === false || p.inStock === false)).length,
-    categories: new Set(products.map(p => p.categoria_nombre || p.category || '')).size
+    categories: new Set(products.map(p => p.categoria_id)).size
   };
 
   // ==========================================
@@ -328,9 +331,10 @@ const AdminPage = () => {
             value={filterCategory}
             onChange={(e) => setFilterCategory(e.target.value)}
           >
+            <option value="todos">📦 Todas las categorías</option>
             {categories.map(cat => (
-              <option key={cat} value={cat}>
-                {cat === 'todos' ? '📦 Todas las categorías' : `🎂 ${cat.charAt(0).toUpperCase() + cat.slice(1)}`}
+              <option key={cat.id} value={cat.id}>
+                {cat.icono ? `${cat.icono} ${cat.nombre}` : cat.nombre}
               </option>
             ))}
           </select>
@@ -359,7 +363,8 @@ const AdminPage = () => {
               // Normalizar datos
               const nombre = product.nombre || product.name || 'Sin nombre';
               const imagen = product.imagen || product.image || 'https://via.placeholder.com/50/FFE4E1/8B4513?text=?';
-              const categoria = product.categoria_nombre || product.category || 'Sin categoría';
+              const categoria = categories.find(c => c.id === product.categoria_id);
+              const catLabel = categoria ? (categoria.icono ? `${categoria.icono} ${categoria.nombre}` : categoria.nombre) : 'Sin categoría';
               const precio = parseFloat(product.precio || product.price) || 0;
               const descuento = parseInt(product.descuento || product.discount) || 0;
               const enStock = (product.en_stock !== false && product.inStock !== false);
@@ -371,7 +376,7 @@ const AdminPage = () => {
                   </td>
                   <td className="product-name-cell">{nombre}</td>
                   <td>
-                    <span className="category-badge">{categoria}</span>
+                    <span className="category-badge">{catLabel}</span>
                   </td>
                   <td>${precio.toFixed(2)}</td>
                   <td>{descuento > 0 ? `${descuento}%` : '-'}</td>
@@ -447,9 +452,9 @@ const AdminPage = () => {
                     onChange={handleFormChange}
                     disabled={loading}
                   >
-                    {categories.filter(c => c !== 'todos').map(cat => (
-                      <option key={cat} value={cat}>
-                        {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                    {categories.map(cat => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.icono ? `${cat.icono} ${cat.nombre}` : cat.nombre}
                       </option>
                     ))}
                   </select>
