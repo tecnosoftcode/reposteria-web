@@ -1,5 +1,5 @@
 /* ========================================
-   ADMIN LAYOUT - NEON
+   ADMIN LAYOUT - ELEGANTE CON MENÚ
    ======================================== */
 .admin-layout {
   min-height: 100vh;
@@ -9,7 +9,7 @@
 .admin-nav {
   background: rgba(10, 10, 10, 0.95);
   backdrop-filter: blur(20px);
-  padding: 1rem 2rem;
+  padding: 0.8rem 1.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -22,20 +22,46 @@
 .admin-nav-brand {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
+  gap: 0.5rem;
   color: var(--text-primary);
-  font-size: 1.3rem;
+  font-size: 1rem;
   font-weight: bold;
 }
 
 .admin-nav-brand span {
-  font-size: 2rem;
+  font-size: 1.5rem;
 }
 
+.menu-toggle-admin {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--gold);
+  margin-left: 1rem;
+  padding: 0.3rem;
+  transition: var(--transition);
+}
+
+.menu-toggle-admin:hover {
+  color: var(--gold-light);
+}
+
+/* Menú desplegable (hamburguesa) */
 .admin-nav-links {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: rgba(10, 10, 10, 0.98);
+  border-bottom: 1px solid var(--border-color);
+  padding: 1rem;
   display: flex;
-  gap: 1rem;
-  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  z-index: 1001;
 }
 
 .admin-nav-link {
@@ -51,18 +77,19 @@
 }
 
 .admin-nav-link:hover {
-  background: rgba(255, 45, 117, 0.05);
-  color: var(--neon-pink);
-  border-color: rgba(255, 45, 117, 0.1);
+  background: rgba(212, 168, 83, 0.05);
+  color: var(--gold);
+  border-color: rgba(212, 168, 83, 0.1);
 }
 
 .admin-nav-link.active {
-  background: rgba(255, 45, 117, 0.1);
-  color: var(--neon-pink);
-  border-color: rgba(255, 45, 117, 0.2);
-  box-shadow: 0 0 30px rgba(255, 45, 117, 0.05);
+  background: rgba(212, 168, 83, 0.1);
+  color: var(--gold);
+  border-color: rgba(212, 168, 83, 0.2);
+  box-shadow: 0 0 30px rgba(212, 168, 83, 0.05);
 }
 
+/* Acciones del usuario */
 .admin-nav-actions {
   display: flex;
   align-items: center;
@@ -70,49 +97,83 @@
 }
 
 .admin-nav-user {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  color: var(--text-secondary);
+  position: relative;
 }
 
-.admin-nav-user .user-info {
+.user-menu-trigger {
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  color: var(--gold);
+  cursor: pointer;
+  padding: 0.3rem;
+  transition: var(--transition);
+}
+
+.user-menu-trigger:hover {
+  color: var(--gold-light);
+  transform: scale(1.1);
+}
+
+.user-avatar-icon {
+  width: 30px;
+  height: 30px;
+}
+
+.user-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: rgba(10, 10, 10, 0.98);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1rem;
+  min-width: 180px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  z-index: 1001;
+}
+
+.user-dropdown-header {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.95rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-color);
 }
 
-.admin-nav-user .user-avatar {
-  width: 35px;
-  height: 35px;
+.user-dropdown-header .user-avatar {
+  width: 25px;
+  height: 25px;
   border-radius: 50%;
-  background: rgba(255, 45, 117, 0.1);
+  background: rgba(212, 168, 83, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.2rem;
+  font-size: 0.9rem;
 }
 
 .logout-btn {
-  background: rgba(255, 255, 255, 0.03);
+  background: none;
+  border: none;
   color: var(--text-secondary);
-  border: 1px solid var(--border-color);
-  padding: 0.5rem 1.2rem;
-  border-radius: 8px;
   cursor: pointer;
   transition: var(--transition);
-  font-weight: 500;
+  padding: 0.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
   text-decoration: none;
+  width: 100%;
 }
 
 .logout-btn:hover {
-  background: rgba(255, 45, 117, 0.1);
-  color: var(--neon-pink);
-  border-color: rgba(255, 45, 117, 0.2);
-  transform: scale(1.05);
+  color: var(--gold);
 }
 
+/* Contenido */
 .admin-content {
   padding: 2rem;
   max-width: 1400px;
@@ -122,72 +183,8 @@
 /* ========================================
    RESPONSIVE
    ======================================== */
-
-@media (max-width: 1024px) {
-  .admin-nav {
-    flex-direction: column;
-    gap: 0.5rem;
-    padding: 0.8rem 1rem;
-  }
-
-  .admin-nav-links {
-    justify-content: center;
-  }
-
-  .admin-nav-user {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .admin-content {
-    padding: 1rem;
-  }
-}
-
 @media (max-width: 768px) {
-  .admin-layout {
-    width: 100% !important;
-    overflow-x: hidden !important;
-  }
-
-  .admin-nav {
-    flex-direction: column !important;
-    gap: 0.5rem !important;
-    padding: 0.5rem !important;
-    width: 100% !important;
-  }
-
-  .admin-nav-links {
-    flex-wrap: wrap !important;
-    justify-content: center !important;
-    gap: 0.5rem !important;
-    width: 100% !important;
-  }
-
-  .admin-nav-link {
-    font-size: 0.75rem !important;
-    padding: 0.4rem 0.6rem !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 0.3rem !important;
-  }
-
-  .admin-nav-user {
-    flex-direction: column !important;
-    align-items: center !important;
-    width: 100% !important;
-    gap: 0.5rem !important;
-  }
-
   .admin-content {
-    padding: 0.5rem !important;
-    width: 100% !important;
-  }
-}
-
-@media (max-width: 480px) {
-  .admin-nav-link {
-    font-size: 0.65rem !important;
-    padding: 0.3rem 0.4rem !important;
+    padding: 0.5rem;
   }
 }
