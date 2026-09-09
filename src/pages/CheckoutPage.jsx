@@ -289,6 +289,7 @@ const CheckoutPage = () => {
           />
         </div>
 
+        {/* Método de pago */}
         <div className="form-group">
           <label>Método de pago *</label>
           <div className="payment-methods">
@@ -303,6 +304,16 @@ const CheckoutPage = () => {
               <FaMoneyBill />
               <span>Efectivo</span>
             </label>
+            <label className={`payment-option ${formData.metodoPago === 'pago_movil' ? 'active' : ''}`}>
+              <input
+                type="radio"
+                name="metodoPago"
+                value="pago_movil"
+                checked={formData.metodoPago === 'pago_movil'}
+                onChange={(e) => setFormData({...formData, metodoPago: e.target.value})}
+              />
+              <span>📱 Pago Móvil</span>
+            </label>
             <label className={`payment-option ${formData.metodoPago === 'transferencia' ? 'active' : ''}`}>
               <input
                 type="radio"
@@ -314,34 +325,49 @@ const CheckoutPage = () => {
               <FaCreditCard />
               <span>Transferencia</span>
             </label>
-            <label className={`payment-option ${formData.metodoPago === 'nequi' ? 'active' : ''}`}>
-              <input
-                type="radio"
-                name="metodoPago"
-                value="nequi"
-                checked={formData.metodoPago === 'nequi'}
-                onChange={(e) => setFormData({...formData, metodoPago: e.target.value})}
-              />
-              <span>📱 Nequi</span>
-            </label>
           </div>
-        </div>
 
-        {/* 🔥 MOSTRAR MÉTODOS DE PAGO CONFIGURADOS POR EL ADMIN */}
-        {settings?.payment_methods?.length > 0 && (
-          <div className="settings-payment-methods">
-            <h4>💳 Datos para pago (configurados por la tienda)</h4>
-            {settings.payment_methods.map((method, index) => (
-              <div key={index} className="payment-method-info">
-                <span className="method-icon">{method.icon}</span>
-                <div>
-                  <strong>{method.name}</strong>
-                  <p>{method.details}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+          {/* 🔥 Mostrar datos según método seleccionado */}
+          {formData.metodoPago === 'efectivo' && (
+            <p style={{ marginTop: '0.5rem', color: 'gray', fontSize: '0.9rem' }}>
+              💵 Acordar con el vendedor
+            </p>
+          )}
+
+          {formData.metodoPago === 'pago_movil' && (
+            <div className="payment-method-details">
+              <h4>📱 Datos para Pago Móvil</h4>
+              {settings?.payment_methods?.filter(m => m.type === 'pago_movil').length > 0 ? (
+                settings.payment_methods.filter(m => m.type === 'pago_movil').map((method, index) => (
+                  <div key={index} className="payment-method-info">
+                    <strong>Banco:</strong> {method.banco}<br />
+                    <strong>Teléfono:</strong> {method.telefono}<br />
+                    <strong>Cédula:</strong> {method.cedula}
+                  </div>
+                ))
+              ) : (
+                <p style={{ color: 'gray' }}>No hay datos de Pago Móvil configurados.</p>
+              )}
+            </div>
+          )}
+
+          {formData.metodoPago === 'transferencia' && (
+            <div className="payment-method-details">
+              <h4>🏦 Datos para Transferencia</h4>
+              {settings?.payment_methods?.filter(m => m.type === 'transferencia').length > 0 ? (
+                settings.payment_methods.filter(m => m.type === 'transferencia').map((method, index) => (
+                  <div key={index} className="payment-method-info">
+                    <strong>Número de cuenta:</strong> {method.numero_cuenta}<br />
+                    <strong>Cédula:</strong> {method.cedula}<br />
+                    <strong>Teléfono:</strong> {method.telefono}
+                  </div>
+                ))
+              ) : (
+                <p style={{ color: 'gray' }}>No hay datos de Transferencia configurados.</p>
+              )}
+            </div>
+          )}
+        </div>
 
         <div className="checkout-actions">
           <button type="button" className="btn-secondary" onClick={() => setStep(1)}>
