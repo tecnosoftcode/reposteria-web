@@ -20,7 +20,8 @@ import LoginPage from './pages/admin/LoginPage';
 import AdminPage from './pages/admin/AdminPage';
 import OrdersPage from './pages/admin/OrdersPage';
 import DashboardPage from './pages/admin/DashboardPage';
-import UsersPage from './pages/admin/UsersPage'; // 🔥 NUEVO USUARIOS
+import UsersPage from './pages/admin/UsersPage';
+import CategoriesPage from './pages/admin/CategoriesPage'; // 🔥 NUEVO CATEGORÍAS
 
 // ===== 🔥 FIREBASE NOTIFICATIONS =====
 import { requestPermission, listenForMessages } from './firebase/config';
@@ -161,8 +162,11 @@ function App() {
                 <Route path="orders" element={<AdminLayout />}>
                   <Route index element={<OrdersPage />} />
                 </Route>
-                <Route path="users" element={<AdminLayout />}> {/* 🔥 NUEVO USUARIOS */}
+                <Route path="users" element={<AdminLayout />}>
                   <Route index element={<UsersPage />} />
+                </Route>
+                <Route path="categories" element={<AdminLayout />}> {/* 🔥 NUEVO CATEGORÍAS */}
+                  <Route index element={<CategoriesPage />} />
                 </Route>
               </Route>
 

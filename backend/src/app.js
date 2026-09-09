@@ -14,6 +14,7 @@ const authRoutes = require('./routes/authRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const notificationRoutes = require('./routes/notificationRoutes'); // 🔥 NUEVO
 const userRoutes = require('./routes/userRoutes'); // 🔥 NUEVO USUARIOS
+const categoryRoutes = require('./routes/categoryRoutes');
 
 const app = express();
 
@@ -33,7 +34,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/users', userRoutes); // 🔥 RUTA USUARIOS
-
+app.use('/api/categories', categoryRoutes); // 🔥 RUTA CATEGORÍAS
 // Health check
 app.get('/api/health', (req, res) => {
     res.json({ 
