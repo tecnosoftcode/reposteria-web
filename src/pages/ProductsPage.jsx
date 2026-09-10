@@ -15,7 +15,7 @@ const ProductsPage = () => {
   const [error, setError] = useState(null);
 
   // ==========================================
-  // CARGAR PRODUCTOS Y CATEGORÍAS
+  // CARGAR PRODUCTOS Y CATEGORÍAS (solo una vez)
   // ==========================================
   useEffect(() => {
     const loadData = async () => {
@@ -28,25 +28,6 @@ const ProductsPage = () => {
         ]);
         setProducts(productsData);
         setCategories(categoriesData);
-
-        // 🔥 LEER LA CATEGORÍA DE LA URL Y CONVERTIR A NÚMERO
-        const categoryFromUrl = searchParams.get('categoria');
-        let initialCategory = 'todos';
-        
-        if (categoryFromUrl) {
-          // Intentar convertir a número (ID)
-          const categoryId = parseInt(categoryFromUrl, 10);
-          if (!isNaN(categoryId)) {
-            initialCategory = categoryId;
-          } else {
-            // Si no es número, buscar por nombre (por si acaso)
-            const cat = categoriesData.find(c => c.nombre.toLowerCase() === categoryFromUrl.toLowerCase());
-            if (cat) initialCategory = cat.id;
-          }
-        }
-        
-        setSelectedCategory(initialCategory);
-        applyFilters(productsData, '', initialCategory);
       } catch (err) {
         console.error('Error cargando datos:', err);
         setError('Error al cargar productos.');
@@ -59,7 +40,54 @@ const ProductsPage = () => {
   }, []);
 
   // ==========================================
-  // FUNCIÓN PARA APLICAR FILTROS
+  // 🔥 ESCUCHAR CAMBIOS EN LA URL Y APLICAR FILTROS
+  // (se ejecuta cada vez que cambia "categoria" en la URL)
+  // ==========================================
+  useEffect(() => {
+    if (products.length === 0 && categories.length === 0) return; // Esperar a que carguen los datos
+
+    const categoryFromUrl = searchParams.get('categoria');
+    let newCategory = 'todos';
+
+    if (categoryFromUrl) {
+      const categoryId = parseInt(categoryFromUrl, 10);
+      if (!isNaN(categoryId)) {
+        newCategory = categoryId;
+      } else {
+        const cat = categories.find(
+          c => c.nombre.toLowerCase() === categoryFromUrl.toLowerCase()
+        );
+        if (cat) newCategory = cat.id;
+      }
+    }
+
+    setSelectedCategory(newCategory);
+
+    // 🔥 Aplicar filtros con los productos actuales
+    let filtered = [...products];
+
+    // Filtrar por búsqueda
+    if (searchTerm && searchTerm.trim()) {
+      const search = searchTerm.toLowerCase().trim();
+      filtered = filtered.filter(p => {
+        const name = (p.nombre || p.name || '').toLowerCase();
+        const desc = (p.descripcion || p.description || '').toLowerCase();
+        return name.includes(search) || desc.includes(search);
+      });
+    }
+
+    // Filtrar por categoría
+    if (newCategory !== 'todos') {
+      filtered = filtered.filter(
+        p => Number(p.categoria_id) === Number(newCategory)
+      );
+    }
+
+    setFilteredProducts(filtered);
+  }, [searchParams, products, categories]);
+
+  // ==========================================
+  // FUNCIÓN PARA APLICAR FILTROS (usada al buscar)
   // ==========================================
   const applyFilters = (productList, term, category) => {
     let filtered = [...productList];
@@ -73,7 +101,6 @@ const ProductsPage = () => {
       });
     }
 
-    // 🔥 FILTRAR POR ID DE CATEGORÍA
     if (category && category !== 'todos') {
       filtered = filtered.filter(p => {
         return Number(p.categoria_id) === Number(category);

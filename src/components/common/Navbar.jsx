@@ -2,7 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { FaShoppingCart, FaUser, FaBars, FaTimes, FaChevronDown } from 'react-icons/fa';
 import { useState, useContext, useEffect } from 'react';
 import { CartContext } from '../../context/CartContext';
-import { getCategories } from '../../services/api';
+import { getCategories, getProducts } from '../../services/api';
 import CartModal from '../cart/CartModal';
 
 const Navbar = () => {
@@ -10,16 +10,32 @@ const Navbar = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [categories, setCategories] = useState([]);
+  const [products, setProducts] = useState([]);
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
 
-  // 🔥 Cargar categorías dinámicamente desde el backend
+  // 🔥 Cargar categorías Y productos dinámicamente
   useEffect(() => {
-    getCategories()
-      .then(data => setCategories(data))
-      .catch(err => console.error('Error cargando categorías:', err));
+    const loadData = async () => {
+      try {
+        const [categoriesData, productsData] = await Promise.all([
+          getCategories(),
+          getProducts()
+        ]);
+        setCategories(categoriesData);
+        setProducts(productsData);
+      } catch (err) {
+        console.error('Error cargando datos del navbar:', err);
+      }
+    };
+    loadData();
   }, []);
+
+  // 🔥 FILTRAR SOLO CATEGORÍAS CON PRODUCTOS
+  const categoriesWithProducts = categories.filter(cat =>
+    products.some(p => Number(p.categoria_id) === Number(cat.id))
+  );
 
   // 🔥 Cerrar menú al cambiar de ruta
   useEffect(() => {
@@ -30,11 +46,7 @@ const Navbar = () => {
   // 🔥 Detectar scroll para achicar el navbar
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 50) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
+      setIsScrolled(window.scrollY > 50);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
@@ -84,17 +96,19 @@ const Navbar = () => {
                 Productos
               </Link>
             </li>
-            <li className="nav-categories">
-              <span 
-                onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
-                className={isCategoriesOpen ? 'active' : ''}
-              >
-                Categorías 
-                <FaChevronDown className={`chevron ${isCategoriesOpen ? 'open' : ''}`} />
-              </span>
-              <ul className={`dropdown ${isCategoriesOpen ? 'open' : ''}`}>
-                {categories.length > 0 ? (
-                  categories.map(cat => (
+
+            {/* 🔥 SOLO MOSTRAR CATEGORÍAS CON PRODUCTOS */}
+            {categoriesWithProducts.length > 0 && (
+              <li className="nav-categories">
+                <span 
+                  onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
+                  className={isCategoriesOpen ? 'active' : ''}
+                >
+                  Categorías 
+                  <FaChevronDown className={`chevron ${isCategoriesOpen ? 'open' : ''}`} />
+                </span>
+                <ul className={`dropdown ${isCategoriesOpen ? 'open' : ''}`}>
+                  {categoriesWithProducts.map(cat => (
                     <li key={cat.id}>
                       <Link 
                         to={`/productos?categoria=${cat.id}`}
@@ -103,12 +117,10 @@ const Navbar = () => {
                         {cat.icono || '🍰'} {cat.nombre}
                       </Link>
                     </li>
-                  ))
-                ) : (
-                  <li><span>Cargando...</span></li>
-                )}
-              </ul>
-            </li>
+                  ))}
+                </ul>
+              </li>
+            )}
           </ul>
 
           {/* Acciones derecha */}
