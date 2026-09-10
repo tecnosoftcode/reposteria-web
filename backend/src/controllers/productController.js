@@ -36,18 +36,6 @@ const getProductById = async (req, res) => {
 };
 
 // ==========================================
-// 🔥 FUNCIÓN AUXILIAR: Construir URL de imagen con HTTPS
-// ==========================================
-const buildImageUrl = (req, filename) => {
-    // 🔥 FORZAR HTTPS SIEMPRE
-    const host = req.get('host');
-    const baseUrl = `https://${host}`;
-    const imageUrl = `${baseUrl}/uploads/${filename}`;
-    console.log('📸 URL de imagen (HTTPS forzado):', imageUrl);
-    return imageUrl;
-};
-
-// ==========================================
 // CREAR PRODUCTO
 // ==========================================
 const createProduct = async (req, res) => {
@@ -63,9 +51,12 @@ const createProduct = async (req, res) => {
             });
         }
 
-        // 🔥 Guardar imagen con HTTPS forzado
+        // 🔥 Subir imagen a ImageKit
         if (req.file) {
-            productData.imagen = buildImageUrl(req, req.file.filename);
+            const upload = require('../middleware/upload');
+            const result = await upload.uploadToImageKit(req.file);
+            productData.imagen = result.url;
+            console.log('📸 URL de imagen (ImageKit):', productData.imagen);
         }
 
         const id = await Product.create(productData);
@@ -73,7 +64,7 @@ const createProduct = async (req, res) => {
         res.status(201).json(newProduct);
     } catch (error) {
         console.error('❌ Error en createProduct:', error.message);
-        res.status(500).json({ error: 'Error al crear producto' });
+        res.status(500).json({ error: 'Error al crear producto: ' + error.message });
     }
 };
 
@@ -85,9 +76,12 @@ const updateProduct = async (req, res) => {
         const { id } = req.params;
         const productData = req.body;
         
-        // 🔥 Guardar imagen con HTTPS forzado
+        // 🔥 Subir imagen a ImageKit
         if (req.file) {
-            productData.imagen = buildImageUrl(req, req.file.filename);
+            const upload = require('../middleware/upload');
+            const result = await upload.uploadToImageKit(req.file);
+            productData.imagen = result.url;
+            console.log('📸 URL de imagen actualizada (ImageKit):', productData.imagen);
         }
 
         const updated = await Product.update(id, productData);
@@ -99,7 +93,7 @@ const updateProduct = async (req, res) => {
         res.json(product);
     } catch (error) {
         console.error('❌ Error en updateProduct:', error.message);
-        res.status(500).json({ error: 'Error al actualizar producto' });
+        res.status(500).json({ error: 'Error al actualizar producto: ' + error.message });
     }
 };
 

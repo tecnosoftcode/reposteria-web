@@ -22,10 +22,13 @@ const app = express();
 
 // Middleware
 app.use(cors());
-app.use(express.json({ limit: '20mb' })); // 🔥 AUMENTADO A 20MB
-app.use(express.urlencoded({ extended: true, limit: '20mb' })); // 🔥 AUMENTADO A 20MB
+app.use(express.json({ limit: '20mb' }));
+app.use(express.urlencoded({ extended: true, limit: '20mb' }));
 
-// Servir archivos estáticos (Imágenes subidas)
+// ==========================================
+// SERVIR ARCHIVOS ESTÁTICOS LOCALES (solo para desarrollo)
+// ==========================================
+// 🔥 Ya NO se usa para producción porque las imágenes van a ImageKit
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // ==========================================
@@ -98,6 +101,7 @@ async function startServer() {
         console.log(`🏷️ Categorías: http://localhost:${PORT}/api/categories`);
         console.log(`⚙️ Configuración: http://localhost:${PORT}/api/settings`);
         console.log(`💬 Reseñas: http://localhost:${PORT}/api/reviews`);
+        console.log(`📸 ImageKit: ${process.env.IMAGEKIT_URL_ENDPOINT ? '✅ Configurado' : '❌ FALTA'}`);
         
         if (dbConnected) {
             console.log('✅ Base de datos conectada correctamente.');
