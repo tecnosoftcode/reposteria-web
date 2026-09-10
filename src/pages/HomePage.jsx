@@ -207,11 +207,6 @@ const HomePage = () => {
             </Link>
           </div>
         )}
-
-        {/* DEBUG: Mostrar cuántos productos hay */}
-        <div style={{ textAlign: 'center', fontSize: '0.8rem', color: 'gray', marginTop: '1rem', padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '10px' }}>
-          <strong>📊 Depuración:</strong> Total productos: {products.length} | Categorías: {categories.map(c => c.nombre).join(', ')}
-        </div>
       </section>
 
       {/* Beneficios */}
