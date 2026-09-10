@@ -1,0 +1,4 @@
+ImagekitID: scarletsweetshop
+Public key = public_2XtjuJWt/m3Pcrj/4nFJ/jvaQnQ=
+Private key (keep confidential) = private_nDd3chl55BvcGuEe8HH4nI4EP/o=
+URL-endpoint: https://ik.imagekit.io/scarletsweetshop
