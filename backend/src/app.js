@@ -17,6 +17,7 @@ const userRoutes = require('./routes/userRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const settingsRoutes = require('./routes/settingsRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
+const imagekitRoutes = require('./routes/imagekitRoutes'); // 🔥 NUEVO
 
 const app = express();
 
@@ -26,9 +27,8 @@ app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ extended: true, limit: '20mb' }));
 
 // ==========================================
-// SERVIR ARCHIVOS ESTÁTICOS LOCALES (solo para desarrollo)
+// SERVIR ARCHIVOS ESTÁTICOS LOCALES
 // ==========================================
-// 🔥 Ya NO se usa para producción porque las imágenes van a ImageKit
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // ==========================================
@@ -42,6 +42,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/imagekit', imagekitRoutes); // 🔥 NUEVA RUTA
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -101,6 +102,7 @@ async function startServer() {
         console.log(`🏷️ Categorías: http://localhost:${PORT}/api/categories`);
         console.log(`⚙️ Configuración: http://localhost:${PORT}/api/settings`);
         console.log(`💬 Reseñas: http://localhost:${PORT}/api/reviews`);
+        console.log(`📸 ImageKit Auth: http://localhost:${PORT}/api/imagekit/auth`);
         console.log(`📸 ImageKit: ${process.env.IMAGEKIT_URL_ENDPOINT ? '✅ Configurado' : '❌ FALTA'}`);
         
         if (dbConnected) {

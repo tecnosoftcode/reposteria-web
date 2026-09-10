@@ -2,12 +2,59 @@ import axios from 'axios';
 
 const API_URL = 'https://reposteria-backend-motu.onrender.com/api';
 
+// 🔥 Credenciales de ImageKit
+const IMAGEKIT_PUBLIC_KEY = 'public_2XtjuJWt/m3Pcrj/4nFJ/jvaQnQ=';
+const IMAGEKIT_URL_ENDPOINT = 'https://ik.imagekit.io/scarletsweetshop';
+const IMAGEKIT_AUTH_ENDPOINT = `${API_URL}/imagekit/auth`;
+
 const api = axios.create({
     baseURL: API_URL,
     headers: {
         'Content-Type': 'application/json'
     }
 });
+
+// ==========================================
+// 🔥 SUBIR IMAGEN A IMAGEKIT (DIRECTO DESDE FRONTEND)
+// ==========================================
+export const uploadToImageKit = async (file) => {
+    try {
+        console.log('📸 Subiendo a ImageKit:', file.name, (file.size / 1024).toFixed(2), 'KB');
+
+        // 1. Obtener token de autenticación del backend
+        const authResponse = await api.get('/imagekit/auth');
+        const { token, expire, signature } = authResponse.data;
+
+        // 2. Crear FormData para ImageKit
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('fileName', `producto-${Date.now()}-${Math.round(Math.random() * 1E9)}.jpg`);
+        formData.append('publicKey', IMAGEKIT_PUBLIC_KEY);
+        formData.append('signature', signature);
+        formData.append('expire', expire);
+        formData.append('token', token);
+        formData.append('folder', '/reposteria-productos');
+        formData.append('useUniqueFileName', 'true');
+
+        // 3. Subir directo a ImageKit
+        const response = await fetch('https://upload.imagekit.io/api/v1/files/upload', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || 'Error al subir a ImageKit');
+        }
+
+        console.log('✅ Imagen subida a ImageKit:', data.url);
+        return data.url;
+    } catch (error) {
+        console.error('❌ Error subiendo a ImageKit:', error);
+        throw error;
+    }
+};
 
 // ==========================================
 // PRODUCTOS
@@ -33,11 +80,10 @@ export const getProductById = async (id) => {
     }
 };
 
-export const createProduct = async (formData) => {
+// 🔥 createProduct ahora recibe un objeto normal (no FormData)
+export const createProduct = async (productData) => {
     try {
-        const response = await api.post('/products', formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-        });
+        const response = await api.post('/products', productData);
         return response.data;
     } catch (error) {
         console.error('Error al crear producto:', error);
@@ -45,11 +91,10 @@ export const createProduct = async (formData) => {
     }
 };
 
-export const updateProduct = async (id, formData) => {
+// 🔥 updateProduct ahora recibe un objeto normal (no FormData)
+export const updateProduct = async (id, productData) => {
     try {
-        const response = await api.put(`/products/${id}`, formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-        });
+        const response = await api.put(`/products/${id}`, productData);
         return response.data;
     } catch (error) {
         console.error('Error al actualizar producto:', error);
@@ -126,7 +171,7 @@ export const updateOrderStatus = async (id, estado) => {
 };
 
 // ==========================================
-// USUARIOS (🔥 NUEVO)
+// USUARIOS
 // ==========================================
 
 export const getUsers = async () => {

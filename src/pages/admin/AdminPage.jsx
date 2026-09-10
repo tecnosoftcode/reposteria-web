@@ -4,7 +4,10 @@ import {
   FaSearch, FaCloudUploadAlt
 } from 'react-icons/fa';
 import toast from 'react-hot-toast';
-import { createProduct, updateProduct, deleteProduct, getProducts, getCategories } from '../../services/api';
+import { 
+  createProduct, updateProduct, deleteProduct, 
+  getProducts, getCategories, uploadToImageKit 
+} from '../../services/api';
 
 const AdminPage = () => {
   const [products, setProducts] = useState([]);
@@ -177,7 +180,7 @@ const AdminPage = () => {
   };
 
   // ==========================================
-  // GUARDAR PRODUCTO
+  // 🔥 GUARDAR PRODUCTO (CON IMAGEKIT DIRECTO)
   // ==========================================
   const saveProduct = async () => {
     // Validar campos
@@ -201,37 +204,36 @@ const AdminPage = () => {
     try {
       setLoading(true);
 
-      const formDataToSend = new FormData();
-      
-      formDataToSend.append('nombre', formData.name.trim());
-      formDataToSend.append('descripcion', formData.description.trim());
-      formDataToSend.append('precio', parseFloat(formData.price));
-      formDataToSend.append('categoria_id', formData.category);
-      formDataToSend.append('descuento', parseInt(formData.discount) || 0);
-      formDataToSend.append('en_stock', formData.inStock ? '1' : '0');
+      // 🔥 PASO 1: Subir la imagen a ImageKit (directo desde el frontend)
+      let imageUrl = formData.image;
 
-      if (formData.sizes) {
-        const sizes = formData.sizes.split(',').map(s => s.trim()).filter(Boolean);
-        sizes.forEach(size => formDataToSend.append('sizes', size));
-      }
-
-      if (formData.flavors) {
-        const flavors = formData.flavors.split(',').map(s => s.trim()).filter(Boolean);
-        flavors.forEach(flavor => formDataToSend.append('flavors', flavor));
-      }
-
-      // 🔥 Agregar el archivo de imagen
       if (formData.imageFile) {
-        formDataToSend.append('imagen', formData.imageFile);
-        console.log('📸 Enviando archivo:', formData.imageFile.name, formData.imageFile.size, 'bytes');
+        toast.loading('Subiendo imagen...', { id: 'upload' });
+        imageUrl = await uploadToImageKit(formData.imageFile);
+        toast.success('✅ Imagen subida', { id: 'upload' });
       }
+
+      // 🔥 PASO 2: Enviar los datos al backend como JSON
+      const productData = {
+        nombre: formData.name.trim(),
+        descripcion: formData.description.trim(),
+        precio: parseFloat(formData.price),
+        categoria_id: formData.category,
+        descuento: parseInt(formData.discount) || 0,
+        en_stock: formData.inStock ? 1 : 0,
+        imagen: imageUrl,
+        sizes: formData.sizes ? formData.sizes.split(',').map(s => s.trim()).filter(Boolean) : [],
+        flavors: formData.flavors ? formData.flavors.split(',').map(s => s.trim()).filter(Boolean) : []
+      };
+
+      console.log('📤 Enviando producto al backend:', productData);
 
       let result;
       if (currentProduct) {
-        result = await updateProduct(currentProduct.id, formDataToSend);
+        result = await updateProduct(currentProduct.id, productData);
         toast.success('✅ Producto actualizado correctamente');
       } else {
-        result = await createProduct(formDataToSend);
+        result = await createProduct(productData);
         toast.success('🎉 Producto creado correctamente');
       }
 
@@ -240,7 +242,7 @@ const AdminPage = () => {
     } catch (error) {
       console.error('Error guardando producto:', error);
       const errorMsg = error.response?.data?.error || error.message || 'Error desconocido';
-      toast.error('Error al guardar producto: ' + errorMsg);
+      toast.error('Error al guardar producto: ' + errorMsg, { id: 'upload' });
     } finally {
       setLoading(false);
     }

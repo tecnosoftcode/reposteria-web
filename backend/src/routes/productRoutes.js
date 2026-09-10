@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const productController = require('../controllers/productController');
-const upload = require('../middleware/upload');
 
 // ==========================================
 // RUTAS PÚBLICAS (cualquier usuario puede ver)
@@ -20,14 +19,14 @@ router.get('/category/:categoriaId', productController.getProductsByCategory);
 router.get('/:id', productController.getProductById);
 
 // ==========================================
-// RUTAS ADMIN (solo el admin puede modificar)
+// 🔥 RUTAS ADMIN (SIN MULTER, JSON directo)
 // ==========================================
 
-// Crear producto (con subida de imagen)
-router.post('/', upload.single('imagen'), productController.createProduct);
+// Crear producto (el frontend ya sube la imagen a ImageKit)
+router.post('/', productController.createProduct);
 
-// Actualizar producto (con subida de imagen)
-router.put('/:id', upload.single('imagen'), productController.updateProduct);
+// Actualizar producto (el frontend ya sube la imagen a ImageKit)
+router.put('/:id', productController.updateProduct);
 
 // Eliminar producto
 router.delete('/:id', productController.deleteProduct);
