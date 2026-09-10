@@ -5,7 +5,6 @@ const API_URL = 'https://reposteria-backend-motu.onrender.com/api';
 // 🔥 Credenciales de ImageKit
 const IMAGEKIT_PUBLIC_KEY = 'public_2XtjuJWt/m3Pcrj/4nFJ/jvaQnQ=';
 const IMAGEKIT_URL_ENDPOINT = 'https://ik.imagekit.io/scarletsweetshop';
-const IMAGEKIT_AUTH_ENDPOINT = `${API_URL}/imagekit/auth`;
 
 const api = axios.create({
     baseURL: API_URL,
@@ -25,6 +24,8 @@ export const uploadToImageKit = async (file) => {
         const authResponse = await api.get('/imagekit/auth');
         const { token, expire, signature } = authResponse.data;
 
+        console.log('🔐 Token obtenido:', token.substring(0, 20) + '...');
+
         // 2. Crear FormData para ImageKit
         const formData = new FormData();
         formData.append('file', file);
@@ -36,23 +37,41 @@ export const uploadToImageKit = async (file) => {
         formData.append('folder', '/reposteria-productos');
         formData.append('useUniqueFileName', 'true');
 
-        // 3. Subir directo a ImageKit
-        const response = await fetch('https://upload.imagekit.io/api/v1/files/upload', {
-            method: 'POST',
-            body: formData
-        });
+        console.log('📤 Enviando a ImageKit...');
 
-        const data = await response.json();
+        // 3. 🔥 Subir con AXIOS (más compatible con móviles que fetch)
+        const response = await axios.post(
+            'https://upload.imagekit.io/api/v1/files/upload',
+            formData,
+            {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                },
+                timeout: 60000, // 60 segundos de timeout
+                maxContentLength: Infinity,
+                maxBodyLength: Infinity
+            }
+        );
 
-        if (!response.ok) {
-            throw new Error(data.message || 'Error al subir a ImageKit');
-        }
-
-        console.log('✅ Imagen subida a ImageKit:', data.url);
-        return data.url;
+        console.log('✅ Imagen subida a ImageKit:', response.data.url);
+        return response.data.url;
     } catch (error) {
         console.error('❌ Error subiendo a ImageKit:', error);
-        throw error;
+
+        // 🔥 Manejo detallado de errores
+        if (error.response) {
+            // El servidor respondió con un código fuera de rango 2xx
+            console.error('📛 Respuesta del servidor:', error.response.data);
+            throw new Error(error.response.data?.message || 'Error al subir a ImageKit');
+        } else if (error.request) {
+            // La petición se hizo pero no hubo respuesta
+            console.error('📛 No hubo respuesta del servidor:', error.request);
+            throw new Error('No se pudo conectar con ImageKit. Verifica tu conexión.');
+        } else {
+            // Algo pasó al configurar la petición
+            console.error('📛 Error:', error.message);
+            throw new Error(error.message || 'Error desconocido al subir la imagen');
+        }
     }
 };
 
