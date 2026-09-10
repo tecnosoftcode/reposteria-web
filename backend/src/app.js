@@ -16,6 +16,7 @@ const notificationRoutes = require('./routes/notificationRoutes'); // 🔥 NUEVO
 const userRoutes = require('./routes/userRoutes'); // 🔥 NUEVO USUARIOS
 const categoryRoutes = require('./routes/categoryRoutes');
 const settingsRoutes = require('./routes/settingsRoutes');
+const reviewRoutes = require('./routes/reviewRoutes');
 
 const app = express();
 
@@ -37,7 +38,7 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/users', userRoutes); // 🔥 RUTA USUARIOS
 app.use('/api/categories', categoryRoutes); // 🔥 RUTA CATEGORÍAS
 app.use('/api/settings', settingsRoutes); // 🔥 RUTA CONFIGURACIÓN
-
+app.use('/api/reviews', reviewRoutes); // 🔥 RUTA RESEÑAS
 // Health check
 app.get('/api/health', (req, res) => {
     res.json({ 
@@ -100,7 +101,7 @@ async function startServer() {
         console.log(`👥 Usuarios: http://localhost:${PORT}/api/users`);
         console.log(`🏷️ Categorías: http://localhost:${PORT}/api/categories`);
         console.log(`⚙️ Configuración: http://localhost:${PORT}/api/settings`);
-        
+        console.log(`📨 RESEÑAS: http://localhost:${PORT}/api/reviews`);
         if (dbConnected) {
             console.log('✅ Base de datos conectada correctamente.');
         } else {

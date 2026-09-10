@@ -247,4 +247,58 @@ export const updateSettings = async (settingsData) => {
     }
 };
 
+// ==========================================
+// RESEÑAS
+// ==========================================
+
+export const getProductReviews = async (productId) => {
+    try {
+        const response = await api.get(`/reviews/product/${productId}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error al obtener reseñas:', error);
+        throw error;
+    }
+};
+
+export const getProductRating = async (productId) => {
+    try {
+        const response = await api.get(`/reviews/product/${productId}/rating`);
+        return response.data;
+    } catch (error) {
+        console.error('Error al obtener rating:', error);
+        throw error;
+    }
+};
+
+export const createReview = async (productId, reviewData) => {
+    try {
+        const response = await api.post(`/reviews/product/${productId}`, reviewData);
+        return response.data;
+    } catch (error) {
+        console.error('Error al crear reseña:', error);
+        throw error;
+    }
+};
+
+export const getAllReviews = async () => {
+    try {
+        const response = await api.get('/reviews');
+        return response.data;
+    } catch (error) {
+        console.error('Error al obtener todas las reseñas:', error);
+        throw error;
+    }
+};
+
+export const deleteReview = async (id) => {
+    try {
+        const response = await api.delete(`/reviews/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error al eliminar reseña:', error);
+        throw error;
+    }
+};
+
 export default api;
