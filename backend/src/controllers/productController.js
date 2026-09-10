@@ -36,6 +36,18 @@ const getProductById = async (req, res) => {
 };
 
 // ==========================================
+// 🔥 FUNCIÓN AUXILIAR: Construir URL de imagen con HTTPS
+// ==========================================
+const buildImageUrl = (req, filename) => {
+    // 🔥 FORZAR HTTPS SIEMPRE
+    const host = req.get('host');
+    const baseUrl = `https://${host}`;
+    const imageUrl = `${baseUrl}/uploads/${filename}`;
+    console.log('📸 URL de imagen (HTTPS forzado):', imageUrl);
+    return imageUrl;
+};
+
+// ==========================================
 // CREAR PRODUCTO
 // ==========================================
 const createProduct = async (req, res) => {
@@ -51,9 +63,9 @@ const createProduct = async (req, res) => {
             });
         }
 
+        // 🔥 Guardar imagen con HTTPS forzado
         if (req.file) {
-            const baseUrl = `${req.protocol}://${req.get('host')}`;
-            productData.imagen = `${baseUrl}/uploads/${req.file.filename}`;
+            productData.imagen = buildImageUrl(req, req.file.filename);
         }
 
         const id = await Product.create(productData);
@@ -73,9 +85,9 @@ const updateProduct = async (req, res) => {
         const { id } = req.params;
         const productData = req.body;
         
+        // 🔥 Guardar imagen con HTTPS forzado
         if (req.file) {
-            const baseUrl = `${req.protocol}://${req.get('host')}`;
-            productData.imagen = `${baseUrl}/uploads/${req.file.filename}`;
+            productData.imagen = buildImageUrl(req, req.file.filename);
         }
 
         const updated = await Product.update(id, productData);
