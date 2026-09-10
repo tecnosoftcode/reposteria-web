@@ -10,8 +10,9 @@ const pool = mysql.createPool({
     port: process.env.DB_PORT || 3306,
     charset: 'utf8mb4', // 🔥 ESTO HACE QUE LOS EMOJIS SE GUARDEN BIEN
     waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
+    connectionLimit: 3,           // 🔥 BAJADO DE 10 A 3
+    queueLimit: 0,
+    idleTimeout: 60000         // 🔥 Cerrar conexiones inactivas después de 60s
 });
 
 async function testConnection() {
