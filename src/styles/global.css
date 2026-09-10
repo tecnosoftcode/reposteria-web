@@ -189,3 +189,94 @@ body::before {
     width: 100%;
   }
 }
+
+/* ========================================
+   🔥 SHINE EFFECT EN TÍTULOS PRINCIPALES
+   ======================================== */
+
+/* Títulos principales (h1, h2) con shine dorado */
+.shine-title {
+  background: linear-gradient(
+    90deg,
+    #d4a853 0%,
+    #f5eee6 25%,
+    #d4a853 50%,
+    #f5eee6 75%,
+    #d4a853 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: shineGold 4s linear infinite;
+}
+
+@keyframes shineGold {
+  0% { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+
+/* Aplicar a los títulos de sección */
+.section-title,
+.carousel-title-main {
+  background: linear-gradient(
+    90deg,
+    #d4a853 0%,
+    #f5eee6 25%,
+    #d4a853 50%,
+    #f5eee6 75%,
+    #d4a853 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: shineGold 5s linear infinite;
+}
+
+/* ========================================
+   🔥 RIPPLE EFFECT EN BOTONES
+   ======================================== */
+
+.btn-primary,
+.btn-secondary {
+  position: relative;
+  overflow: hidden;
+  /* Para el efecto ripple */
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-primary::after,
+.btn-secondary::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s ease, height 0.6s ease, opacity 0.6s ease;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.btn-primary:active::after,
+.btn-secondary:active::after {
+  width: 300px;
+  height: 300px;
+  opacity: 1;
+  transition: width 0.4s ease, height 0.4s ease, opacity 0s;
+}
+
+/* En botones dorados el ripple es dorado */
+.btn-primary:active::after {
+  background: rgba(26, 20, 16, 0.3);
+}
+
+.btn-secondary:active::after {
+  background: rgba(212, 168, 83, 0.4);
+}
