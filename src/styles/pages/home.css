@@ -927,7 +927,7 @@
 }
 
 /* ========================================
-   RESPONSIVE - MÓVILES PEQUEÑOS (hasta 480px)
+   RESPONSIVE - MÓVILES PEQUEÑOS (hasta 480px) -- este es el que me modifica en el celular y los telefonos actuales
    ======================================== */
 @media (max-width: 480px) {
   /* Hero */
@@ -948,7 +948,7 @@
     width: 115px !important;
     height: 100px !important;
     padding: 0px !important;
-    top: 30px !important;
+    top: 10px !important;
     overflow: visible !important;
     position: absolute !important;
     left: 50% !important;
