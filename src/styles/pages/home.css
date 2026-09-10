@@ -366,20 +366,28 @@
 }
 
 .category-card {
-  background: rgba(42, 31, 26, 0.85);
-  backdrop-filter: blur(10px);
   padding: 2rem;
-  border-radius: 15px;
+  border-radius: 20px;
   text-align: center;
-  border: 1px solid rgba(212, 168, 83, 0.04);
-  transition: var(--transition);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
+  /* 🔥 GLASSMORPHISM */
+  background: linear-gradient(135deg, rgba(212, 168, 83, 0.06), rgba(212, 168, 83, 0.02));
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(212, 168, 83, 0.12);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .category-card:hover {
-  transform: translateY(-5px);
-  border-color: rgba(212, 168, 83, 0.15);
-  box-shadow: 0 0 40px rgba(212, 168, 83, 0.03);
+  transform: translateY(-8px) scale(1.02);
+  background: linear-gradient(135deg, rgba(212, 168, 83, 0.10), rgba(212, 168, 83, 0.04));
+  border-color: rgba(212, 168, 83, 0.3);
+  box-shadow: 
+    0 20px 60px rgba(212, 168, 83, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .category-card a {
@@ -423,15 +431,26 @@
 
 .benefit-item {
   text-align: center;
-  padding: 1.2rem 1rem;
-  border-radius: 12px;
-  transition: var(--transition);
+  padding: 1.5rem 1rem;
+  border-radius: 20px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  /* 🔥 GLASSMORPHISM */
+  background: linear-gradient(135deg, rgba(212, 168, 83, 0.06), rgba(212, 168, 83, 0.02));
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(212, 168, 83, 0.12);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .benefit-item:hover {
-  background: rgba(212, 168, 83, 0.02);
-  transform: translateY(-2px);
-  border: 1px solid rgba(212, 168, 83, 0.04);
+  transform: translateY(-8px) scale(1.02);
+  background: linear-gradient(135deg, rgba(212, 168, 83, 0.10), rgba(212, 168, 83, 0.04));
+  border-color: rgba(212, 168, 83, 0.3);
+  box-shadow: 
+    0 20px 60px rgba(212, 168, 83, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .benefit-icon {
@@ -540,22 +559,30 @@
 
 /* ===== TARJETA DE PRODUCTO ===== */
 .product-card-shop {
-  background: var(--bg-card);
-  border-radius: 12px;
+  border-radius: 20px;
   overflow: hidden;
-  border: 1px solid rgba(212, 168, 83, 0.08);
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   height: 100%;
   display: flex;
   flex-direction: column;
   max-width: 280px;
   margin: 0 auto;
+  /* 🔥 GLASSMORPHISM */
+  background: linear-gradient(135deg, rgba(42, 31, 26, 0.9), rgba(30, 22, 18, 0.85));
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(212, 168, 83, 0.12);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .product-card-shop:hover {
-  transform: translateY(-4px);
-  border-color: var(--gold);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  transform: translateY(-8px) scale(1.02);
+  border-color: rgba(212, 168, 83, 0.4);
+  box-shadow: 
+    0 20px 60px rgba(212, 168, 83, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .product-link {
@@ -1217,22 +1244,30 @@
 
 /* ===== TARJETA DE PRODUCTO MODERNA ===== */
 .product-card-shop-modern {
-  background: var(--bg-card);
-  border-radius: 12px;
+  border-radius: 20px;
   overflow: hidden;
-  border: 1px solid rgba(212, 168, 83, 0.04);
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   height: 100%;
   display: flex;
   flex-direction: column;
   width: 280px;
   margin: 0 auto;
+  /* 🔥 GLASSMORPHISM */
+  background: linear-gradient(135deg, rgba(42, 31, 26, 0.9), rgba(30, 22, 18, 0.85));
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(212, 168, 83, 0.12);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .product-card-shop-modern:hover {
-  transform: translateY(-4px);
-  border-color: var(--gold);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  transform: translateY(-8px) scale(1.02);
+  border-color: rgba(212, 168, 83, 0.4);
+  box-shadow: 
+    0 20px 60px rgba(212, 168, 83, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .product-link {
