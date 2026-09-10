@@ -55,7 +55,7 @@ const HomePage = () => {
           <div className="hero-content">
             <div className="hero-logo-container">
               <img 
-                src="/images/logo-scarlet.png" 
+                src="/images/logo-scarletv2.png"
                 alt="Scarlet Sweet Shop - Pastelería Fina" 
                 className="hero-logo-image"
               />
@@ -100,7 +100,7 @@ const HomePage = () => {
           <div className="hero-content">
             <div className="hero-logo-container">
               <img 
-                src="/images/logo-scarlet.png" 
+                src="/images/logo-scarletv2.png" 
                 alt="Scarlet Sweet Shop - Pastelería Fina" 
                 className="hero-logo-image"
               />
@@ -156,7 +156,7 @@ const HomePage = () => {
         <div className="hero-content">
           <div className="hero-logo-container">
             <img 
-              src="/images/logo-scarlet.png" 
+              src="/images/logo-scarletv2.png" 
               alt="Scarlet Sweet Shop - Pastelería Fina" 
               className="hero-logo-image"
             />
