@@ -4,6 +4,8 @@ import {
   FaSearch, FaCloudUploadAlt
 } from 'react-icons/fa';
 import toast from 'react-hot-toast';
+import imageCompression from 'browser-image-compression';
+import heic2any from 'heic2any';
 import { createProduct, updateProduct, deleteProduct, getProducts, getCategories } from '../../services/api';
 
 const AdminPage = () => {
@@ -63,94 +65,109 @@ const AdminPage = () => {
   }, []);
 
   // ==========================================
-  // 🔥 MANEJO DE IMÁGENES (con compresión)
+  // 🔥 MANEJO DE IMÁGENES (HEIC + Compresión universal)
   // ==========================================
   const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
+    let file = e.target.files[0];
     if (!file) return;
 
-    if (!file.type.startsWith('image/')) {
+    console.log('📸 Archivo original:', file.name, file.type, (file.size / 1024 / 1024).toFixed(2), 'MB');
+
+    // 🔥 Validar que sea imagen (o HEIC sin MIME type)
+    const isImage = 
+      file.type.startsWith('image/') || 
+      file.name.toLowerCase().endsWith('.heic') ||
+      file.name.toLowerCase().endsWith('.heif');
+
+    if (!isImage) {
       toast.error('❌ Por favor selecciona una imagen válida');
       return;
     }
 
-    // 🔥 Si la imagen pesa más de 3MB, la comprimimos
-    let finalFile = file;
+    try {
+      // ==========================================
+      // 🔥 PASO 1: CONVERTIR HEIC A JPG
+      // ==========================================
+      const isHeic = 
+        file.type === 'image/heic' || 
+        file.type === 'image/heif' || 
+        file.name.toLowerCase().endsWith('.heic') ||
+        file.name.toLowerCase().endsWith('.heif');
 
-    if (file.size > 3 * 1024 * 1024) {
-      try {
-        toast.loading('Comprimiendo imagen...', { id: 'compress' });
-        
-        // Compresión usando canvas (sin librerías externas)
-        const compressedFile = await compressImage(file, 1920, 0.85);
-        finalFile = compressedFile;
-        
-        toast.success('✅ Imagen comprimida', { id: 'compress' });
-      } catch (error) {
-        console.error('Error comprimiendo:', error);
-        toast.error('Error al comprimir la imagen', { id: 'compress' });
-        // Si falla la compresión, seguimos con el original
-        finalFile = file;
-      }
-    }
+      if (isHeic) {
+        try {
+          toast.loading('Convirtiendo imagen HEIC...', { id: 'heic' });
+          console.log('🔄 Convirtiendo HEIC a JPG...');
 
-    // 🔥 Validar tamaño después de comprimir (15MB max)
-    if (finalFile.size > 15 * 1024 * 1024) {
-      toast.error('❌ La imagen debe ser menor a 15MB');
-      return;
-    }
+          const convertedBlob = await heic2any({
+            blob: file,
+            toType: 'image/jpeg',
+            quality: 0.85
+          });
 
-    const previewUrl = URL.createObjectURL(finalFile);
-    setFormData(prev => ({ ...prev, image: previewUrl, imageFile: finalFile }));
-    toast.success('✅ Imagen seleccionada');
-  };
+          // Si devuelve un array, tomar el primero
+          const blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
 
-  // 🔥 Función para comprimir imágenes con Canvas
-  const compressImage = (file, maxWidth = 1920, quality = 0.85) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = (event) => {
-        const img = new Image();
-        img.src = event.target.result;
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          let width = img.width;
-          let height = img.height;
-
-          // Redimensionar si es más grande que maxWidth
-          if (width > maxWidth) {
-            height = (height * maxWidth) / width;
-            width = maxWidth;
-          }
-
-          canvas.width = width;
-          canvas.height = height;
-
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, width, height);
-
-          canvas.toBlob(
-            (blob) => {
-              if (!blob) {
-                reject(new Error('Error al comprimir'));
-                return;
-              }
-              const compressedFile = new File(
-                [blob],
-                file.name.replace(/\.[^.]+$/, '.jpg'),
-                { type: 'image/jpeg', lastModified: Date.now() }
-              );
-              resolve(compressedFile);
-            },
-            'image/jpeg',
-            quality
+          file = new File(
+            [blob],
+            file.name.replace(/\.(heic|heif)$/i, '.jpg'),
+            { type: 'image/jpeg' }
           );
-        };
-        img.onerror = () => reject(new Error('Error al cargar imagen'));
-      };
-      reader.onerror = () => reject(new Error('Error al leer archivo'));
-    });
+
+          console.log('✅ HEIC convertido:', (file.size / 1024 / 1024).toFixed(2), 'MB');
+          toast.success('✅ Imagen convertida', { id: 'heic' });
+        } catch (error) {
+          console.error('❌ Error convirtiendo HEIC:', error);
+          toast.error('❌ No se pudo convertir la imagen HEIC', { id: 'heic' });
+          return;
+        }
+      }
+
+      // ==========================================
+      // 🔥 PASO 2: COMPRIMIR SI ES MAYOR A 1.5MB
+      // ==========================================
+      let finalFile = file;
+
+      if (file.size > 1.5 * 1024 * 1024) {
+        try {
+          toast.loading('Comprimiendo imagen...', { id: 'compress' });
+          console.log('🗜️ Comprimiendo...');
+
+          const options = {
+            maxSizeMB: 1.5,           // Máximo 1.5 MB
+            maxWidthOrHeight: 1920,   // Máximo 1920px
+            useWebWorker: true,       // Más rápido, no bloquea
+            fileType: 'image/jpeg',
+            initialQuality: 0.85
+          };
+
+          finalFile = await imageCompression(file, options);
+
+          console.log('✅ Comprimido:', (finalFile.size / 1024 / 1024).toFixed(2), 'MB');
+          toast.success('✅ Imagen comprimida', { id: 'compress' });
+        } catch (error) {
+          console.error('❌ Error comprimiendo:', error);
+          toast.error('⚠️ Continuando sin comprimir', { id: 'compress' });
+          finalFile = file;
+        }
+      }
+
+      // ==========================================
+      // 🔥 PASO 3: VALIDAR TAMAÑO FINAL
+      // ==========================================
+      if (finalFile.size > 15 * 1024 * 1024) {
+        toast.error('❌ La imagen debe ser menor a 15MB');
+        return;
+      }
+
+      const previewUrl = URL.createObjectURL(finalFile);
+      setFormData(prev => ({ ...prev, image: previewUrl, imageFile: finalFile }));
+      toast.success('✅ Imagen lista para subir');
+
+    } catch (error) {
+      console.error('❌ Error procesando imagen:', error);
+      toast.error('❌ Error al procesar la imagen');
+    }
   };
 
   // ==========================================
@@ -604,7 +621,7 @@ const AdminPage = () => {
                         <label htmlFor="image-upload" className="upload-label">
                           <FaCloudUploadAlt className="upload-icon" />
                           <span>Haz clic o arrastra una imagen</span>
-                          <small>JPG, PNG, GIF, WEBP (max 15MB)</small>
+                          <small>JPG, PNG, GIF, WEBP, HEIC (max 15MB)</small>
                         </label>
                       </div>
                     )}
