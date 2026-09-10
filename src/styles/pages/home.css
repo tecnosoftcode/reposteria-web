@@ -772,15 +772,15 @@
   }
 
     .hero-logo-container {
-    width: 200px;
-    height: 200px;
+    width: 160px;
+    height: 160px;
     padding: 15px;
     top: 20px;
   }
 
   .hero-logo-image {
-    width: 170px;
-    height: 170px;
+    width: 180px;
+    height: 180px;
     object-fit: contain;
   }
 
