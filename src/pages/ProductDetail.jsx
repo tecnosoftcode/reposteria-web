@@ -1,8 +1,8 @@
 import { useState, useEffect, useContext } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { CartContext } from '../context/CartContext';
-import { FaShoppingCart, FaWhatsapp, FaStar, FaStarHalf, FaTruck, FaClock, FaHeart, FaRegHeart } from 'react-icons/fa';
-import { getProductById } from '../services/api';
+import { FaShoppingCart, FaWhatsapp, FaStar, FaStarHalf, FaTruck, FaClock, FaHeart, FaRegHeart, FaUser, FaPaperPlane } from 'react-icons/fa';
+import { getProductById, getProductReviews, getProductRating, createReview } from '../services/api';
 import toast from 'react-hot-toast';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
@@ -25,28 +25,48 @@ const ProductDetail = () => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
 
-  // Cargar producto desde el backend
+  // 🔥 ESTADOS PARA RESEÑAS
+  const [reviews, setReviews] = useState([]);
+  const [rating, setRating] = useState({ total_reviews: 0, average_rating: 0 });
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [newReview, setNewReview] = useState({
+    nombre_cliente: '',
+    email_cliente: '',
+    rating: 5,
+    comentario: ''
+  });
+
+  // 🔥 Cargar producto, reseñas y rating
   useEffect(() => {
-    const loadProduct = async () => {
+    const loadData = async () => {
       try {
         setLoading(true);
         setError(null);
-        const data = await getProductById(id);
-        
-        if (data) {
-          setProduct(data);
-          if (data.sizes && data.sizes.length > 0) {
-            setSelectedSize(data.sizes[0]);
+
+        const [productData, reviewsData, ratingData] = await Promise.all([
+          getProductById(id),
+          getProductReviews(id),
+          getProductRating(id)
+        ]);
+
+        if (productData) {
+          setProduct(productData);
+          if (productData.sizes && productData.sizes.length > 0) {
+            setSelectedSize(productData.sizes[0]);
           }
-          if (data.flavors && data.flavors.length > 0) {
-            setSelectedFlavor(data.flavors[0]);
+          if (productData.flavors && productData.flavors.length > 0) {
+            setSelectedFlavor(productData.flavors[0]);
           }
-          if (data.themes && data.themes.length > 0) {
-            setSelectedTheme(data.themes[0]);
+          if (productData.themes && productData.themes.length > 0) {
+            setSelectedTheme(productData.themes[0]);
           }
         } else {
           setError('Producto no encontrado');
         }
+
+        setReviews(reviewsData || []);
+        setRating(ratingData || { total_reviews: 0, average_rating: 0 });
       } catch (err) {
         console.error('Error cargando producto:', err);
         setError('Error al cargar el producto');
@@ -56,7 +76,7 @@ const ProductDetail = () => {
     };
 
     if (id) {
-      loadProduct();
+      loadData();
     }
   }, [id]);
 
@@ -70,13 +90,6 @@ const ProductDetail = () => {
     if (product.imagen || product.image) {
       images.push(product.imagen || product.image);
     }
-    
-    // Imágenes adicionales (simuladas para demo)
-    const additionalImages = [
-      'https://images.unsplash.com/photo-1588195538326-c5b1e9f80a1b?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1578985545062-69928b1d9589?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=800&h=600&fit=crop'
-    ];
     
     // Si hay imágenes adicionales, agregarlas
     if (product.imagenes_adicionales) {
@@ -122,19 +135,93 @@ const ProductDetail = () => {
     setTimeout(() => setIsAddingToCart(false), 2000);
   };
 
-  // Renderizar estrellas
-  const renderStars = (rating) => {
+  // 🔥 ENVIAR RESEÑA
+  const handleSubmitReview = async (e) => {
+    e.preventDefault();
+
+    if (!newReview.nombre_cliente.trim()) {
+      toast.error('Por favor ingresa tu nombre');
+      return;
+    }
+    if (!newReview.comentario.trim()) {
+      toast.error('Por favor escribe un comentario');
+      return;
+    }
+
+    try {
+      setIsSubmittingReview(true);
+      await createReview(id, newReview);
+      toast.success('¡Gracias por tu reseña! 🎉');
+
+      // Recargar reseñas y rating
+      const [reviewsData, ratingData] = await Promise.all([
+        getProductReviews(id),
+        getProductRating(id)
+      ]);
+      setReviews(reviewsData || []);
+      setRating(ratingData || { total_reviews: 0, average_rating: 0 });
+
+      // Resetear formulario
+      setNewReview({
+        nombre_cliente: '',
+        email_cliente: '',
+        rating: 5,
+        comentario: ''
+      });
+      setShowReviewForm(false);
+    } catch (error) {
+      console.error('Error enviando reseña:', error);
+      toast.error('Error al enviar la reseña');
+    } finally {
+      setIsSubmittingReview(false);
+    }
+  };
+
+  // Renderizar estrellas (solo visual)
+  const renderStars = (ratingValue, size = '1.2rem') => {
     const stars = [];
-    const fullStars = Math.floor(rating || 0);
-    const hasHalfStar = (rating || 0) % 1 !== 0;
+    const fullStars = Math.floor(ratingValue || 0);
+    const hasHalfStar = (ratingValue || 0) % 1 >= 0.5;
 
     for (let i = 0; i < fullStars; i++) {
-      stars.push(<FaStar key={`star-${i}`} />);
+      stars.push(<FaStar key={`star-${i}`} style={{ fontSize: size }} />);
     }
     if (hasHalfStar) {
-      stars.push(<FaStarHalf key="half-star" />);
+      stars.push(<FaStarHalf key="half-star" style={{ fontSize: size }} />);
+    }
+    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+    for (let i = 0; i < emptyStars; i++) {
+      stars.push(<FaStar key={`empty-${i}`} style={{ fontSize: size, opacity: 0.3 }} />);
     }
     return stars;
+  };
+
+  // 🔥 Selector de estrellas (para el formulario)
+  const renderStarSelector = () => {
+    return (
+      <div className="star-selector">
+        {[1, 2, 3, 4, 5].map(star => (
+          <button
+            key={star}
+            type="button"
+            className={`star-btn ${newReview.rating >= star ? 'active' : ''}`}
+            onClick={() => setNewReview({ ...newReview, rating: star })}
+          >
+            <FaStar />
+          </button>
+        ))}
+      </div>
+    );
+  };
+
+  // Formatear fecha
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
   };
 
   // Estado de carga
@@ -228,11 +315,15 @@ const ProductDetail = () => {
         <div className="product-info">
           <h1 className="product-name">{nombre}</h1>
           
-          {/* Calificación */}
+          {/* 🔥 CALIFICACIÓN DINÁMICA */}
           <div className="product-rating">
-            <span className="stars">{renderStars(4.5)}</span>
-            <span className="rating-value">4.5</span>
-            <span className="reviews-count">(128 reseñas)</span>
+            <span className="stars">{renderStars(rating.average_rating || 0)}</span>
+            <span className="rating-value">
+              {rating.average_rating ? rating.average_rating.toFixed(1) : '0.0'}
+            </span>
+            <span className="reviews-count">
+              ({rating.total_reviews} {rating.total_reviews === 1 ? 'reseña' : 'reseñas'})
+            </span>
           </div>
 
           {/* Precio */}
@@ -385,6 +476,107 @@ const ProductDetail = () => {
           </div>
         </div>
       </div>
+
+      {/* ==========================================
+          SECCIÓN DE RESEÑAS
+          ========================================== */}
+      <section className="reviews-section">
+        <div className="reviews-header">
+          <h2 className="reviews-title">
+            💬 Reseñas ({rating.total_reviews})
+          </h2>
+          <button 
+            className="btn-primary write-review-btn"
+            onClick={() => setShowReviewForm(!showReviewForm)}
+          >
+            {showReviewForm ? 'Cancelar' : '✍️ Escribir reseña'}
+          </button>
+        </div>
+
+        {/* 🔥 FORMULARIO DE RESEÑA */}
+        {showReviewForm && (
+          <form className="review-form" onSubmit={handleSubmitReview}>
+            <h3>✍️ Deja tu reseña</h3>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label>Tu nombre *</label>
+                <input
+                  type="text"
+                  value={newReview.nombre_cliente}
+                  onChange={(e) => setNewReview({ ...newReview, nombre_cliente: e.target.value })}
+                  placeholder="Ej: María González"
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Tu email (opcional)</label>
+                <input
+                  type="email"
+                  value={newReview.email_cliente}
+                  onChange={(e) => setNewReview({ ...newReview, email_cliente: e.target.value })}
+                  placeholder="correo@ejemplo.com"
+                />
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label>Tu calificación *</label>
+              {renderStarSelector()}
+            </div>
+
+            <div className="form-group">
+              <label>Tu comentario *</label>
+              <textarea
+                value={newReview.comentario}
+                onChange={(e) => setNewReview({ ...newReview, comentario: e.target.value })}
+                placeholder="Cuéntanos qué te pareció el producto..."
+                rows="4"
+                required
+              />
+            </div>
+
+            <button 
+              type="submit" 
+              className="btn-primary submit-review-btn"
+              disabled={isSubmittingReview}
+            >
+              <FaPaperPlane /> {isSubmittingReview ? 'Enviando...' : 'Enviar reseña'}
+            </button>
+          </form>
+        )}
+
+        {/* 🔥 LISTA DE RESEÑAS */}
+        <div className="reviews-list">
+          {reviews.length > 0 ? (
+            reviews.map(review => (
+              <div key={review.id} className="review-card">
+                <div className="review-header">
+                  <div className="review-user">
+                    <span className="review-avatar">
+                      <FaUser />
+                    </span>
+                    <div>
+                      <strong className="review-name">{review.nombre_cliente}</strong>
+                      <span className="review-date">{formatDate(review.created_at)}</span>
+                    </div>
+                  </div>
+                  <div className="review-stars">
+                    {renderStars(review.rating, '1rem')}
+                  </div>
+                </div>
+                <p className="review-comment">{review.comentario}</p>
+              </div>
+            ))
+          ) : (
+            <div className="no-reviews">
+              <span className="no-reviews-icon">💬</span>
+              <h3>Sé el primero en opinar</h3>
+              <p>Comparte tu experiencia con este producto</p>
+            </div>
+          )}
+        </div>
+      </section>
     </div>
   );
 };
