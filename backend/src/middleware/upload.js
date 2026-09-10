@@ -26,13 +26,17 @@ const storage = multer.diskStorage({
 
 // Filtro para solo imágenes
 const fileFilter = (req, file, cb) => {
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/webp'];
+    const allowedTypes = [
+        'image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/webp',
+        'image/heic', 'image/heif',  // 🔥 Formatos de iPhone
+        'image/bmp', 'image/tiff'    // 🔥 Otros formatos comunes
+    ];
     if (allowedTypes.includes(file.mimetype)) {
         console.log('✅ Tipo de archivo permitido:', file.mimetype);
         cb(null, true);
     } else {
         console.log('❌ Tipo de archivo no permitido:', file.mimetype);
-        cb(new Error('Solo se permiten imágenes (JPEG, PNG, JPG, GIF, WEBP)'), false);
+        cb(new Error('Solo se permiten imágenes (JPEG, PNG, JPG, GIF, WEBP, HEIC)'), false);
     }
 };
 
@@ -40,7 +44,7 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({
     storage: storage,
     limits: {
-        fileSize: 5 * 1024 * 1024 // 5MB
+        fileSize: 15 * 1024 * 1024 // 🔥 15MB (para fotos de teléfono)
     },
     fileFilter: fileFilter
 });

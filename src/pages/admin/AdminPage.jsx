@@ -63,9 +63,9 @@ const AdminPage = () => {
   }, []);
 
   // ==========================================
-  // MANEJO DE IMÁGENES
+  // 🔥 MANEJO DE IMÁGENES (con compresión)
   // ==========================================
-  const handleImageUpload = (e) => {
+  const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
@@ -74,14 +74,83 @@ const AdminPage = () => {
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('❌ La imagen debe ser menor a 5MB');
+    // 🔥 Si la imagen pesa más de 3MB, la comprimimos
+    let finalFile = file;
+
+    if (file.size > 3 * 1024 * 1024) {
+      try {
+        toast.loading('Comprimiendo imagen...', { id: 'compress' });
+        
+        // Compresión usando canvas (sin librerías externas)
+        const compressedFile = await compressImage(file, 1920, 0.85);
+        finalFile = compressedFile;
+        
+        toast.success('✅ Imagen comprimida', { id: 'compress' });
+      } catch (error) {
+        console.error('Error comprimiendo:', error);
+        toast.error('Error al comprimir la imagen', { id: 'compress' });
+        // Si falla la compresión, seguimos con el original
+        finalFile = file;
+      }
+    }
+
+    // 🔥 Validar tamaño después de comprimir (15MB max)
+    if (finalFile.size > 15 * 1024 * 1024) {
+      toast.error('❌ La imagen debe ser menor a 15MB');
       return;
     }
 
-    const previewUrl = URL.createObjectURL(file);
-    setFormData(prev => ({ ...prev, image: previewUrl, imageFile: file }));
+    const previewUrl = URL.createObjectURL(finalFile);
+    setFormData(prev => ({ ...prev, image: previewUrl, imageFile: finalFile }));
     toast.success('✅ Imagen seleccionada');
+  };
+
+  // 🔥 Función para comprimir imágenes con Canvas
+  const compressImage = (file, maxWidth = 1920, quality = 0.85) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+
+          // Redimensionar si es más grande que maxWidth
+          if (width > maxWidth) {
+            height = (height * maxWidth) / width;
+            width = maxWidth;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          canvas.toBlob(
+            (blob) => {
+              if (!blob) {
+                reject(new Error('Error al comprimir'));
+                return;
+              }
+              const compressedFile = new File(
+                [blob],
+                file.name.replace(/\.[^.]+$/, '.jpg'),
+                { type: 'image/jpeg', lastModified: Date.now() }
+              );
+              resolve(compressedFile);
+            },
+            'image/jpeg',
+            quality
+          );
+        };
+        img.onerror = () => reject(new Error('Error al cargar imagen'));
+      };
+      reader.onerror = () => reject(new Error('Error al leer archivo'));
+    });
   };
 
   // ==========================================
@@ -209,7 +278,7 @@ const AdminPage = () => {
       // 🔥 IMPORTANTE: Agregar el archivo de imagen
       if (formData.imageFile) {
         formDataToSend.append('imagen', formData.imageFile);
-        console.log('📸 Enviando archivo:', formData.imageFile.name);
+        console.log('📸 Enviando archivo:', formData.imageFile.name, formData.imageFile.size, 'bytes');
       }
 
       let result;
@@ -259,7 +328,6 @@ const AdminPage = () => {
     const categoriaId = product.categoria_id;
     const matchSearch = nombre.toLowerCase().includes(searchTerm.toLowerCase());
     
-    // 🔥 CONVERTIR A NÚMERO PARA COMPARAR
     const matchCategory = 
       filterCategory === 'todos' || 
       Number(categoriaId) === Number(filterCategory);
@@ -368,7 +436,6 @@ const AdminPage = () => {
           </thead>
           <tbody>
             {filteredProducts.map(product => {
-              // Normalizar datos
               const nombre = product.nombre || product.name || 'Sin nombre';
               const imagen = product.imagen || product.image || 'https://via.placeholder.com/50/FFE4E1/8B4513?text=?';
               const categoria = categories.find(c => Number(c.id) === Number(product.categoria_id));
@@ -423,9 +490,7 @@ const AdminPage = () => {
         )}
       </div>
 
-      {/* ==========================================
-          MODAL DE EDICIÓN/CREACIÓN
-          ========================================== */}
+      {/* MODAL DE EDICIÓN/CREACIÓN */}
       {isEditing && (
         <div className="admin-modal-overlay" onClick={closeModal}>
           <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
@@ -438,7 +503,6 @@ const AdminPage = () => {
 
             <div className="modal-body">
               <div className="form-grid">
-                {/* Nombre */}
                 <div className="form-group">
                   <label>Nombre *</label>
                   <input
@@ -451,7 +515,6 @@ const AdminPage = () => {
                   />
                 </div>
 
-                {/* Categoría */}
                 <div className="form-group">
                   <label>Categoría *</label>
                   <select
@@ -468,7 +531,6 @@ const AdminPage = () => {
                   </select>
                 </div>
 
-                {/* Precio */}
                 <div className="form-group">
                   <label>Precio *</label>
                   <input
@@ -483,7 +545,6 @@ const AdminPage = () => {
                   />
                 </div>
 
-                {/* Descuento */}
                 <div className="form-group">
                   <label>Descuento (%)</label>
                   <input
@@ -498,7 +559,6 @@ const AdminPage = () => {
                   />
                 </div>
 
-                {/* Descripción */}
                 <div className="form-group full-width">
                   <label>Descripción *</label>
                   <textarea
@@ -511,7 +571,6 @@ const AdminPage = () => {
                   />
                 </div>
 
-                {/* Imagen */}
                 <div className="form-group full-width">
                   <label>Imagen del Producto *</label>
                   <div className="image-upload-container">
@@ -545,14 +604,13 @@ const AdminPage = () => {
                         <label htmlFor="image-upload" className="upload-label">
                           <FaCloudUploadAlt className="upload-icon" />
                           <span>Haz clic o arrastra una imagen</span>
-                          <small>JPG, PNG, GIF, WEBP (max 5MB)</small>
+                          <small>JPG, PNG, GIF, WEBP (max 15MB)</small>
                         </label>
                       </div>
                     )}
                   </div>
                 </div>
 
-                {/* Tamaños */}
                 <div className="form-group">
                   <label>Tamaños (separados por coma)</label>
                   <input
@@ -565,7 +623,6 @@ const AdminPage = () => {
                   />
                 </div>
 
-                {/* Sabores */}
                 <div className="form-group">
                   <label>Sabores (separados por coma)</label>
                   <input
@@ -578,7 +635,6 @@ const AdminPage = () => {
                   />
                 </div>
 
-                {/* Stock */}
                 <div className="form-group full-width">
                   <label className="checkbox-label">
                     <input

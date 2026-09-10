@@ -6,14 +6,14 @@ require('dotenv').config();
 
 const { testConnection } = require('./config/database');
 const { initializeSocket } = require('./socket');
-const firebaseAdmin = require('./config/firebase'); // 🔥 IMPORTANTE: Inicializa Firebase
+const firebaseAdmin = require('./config/firebase');
 
 // Importar rutas
 const productRoutes = require('./routes/productRoutes');
 const authRoutes = require('./routes/authRoutes');
 const orderRoutes = require('./routes/orderRoutes');
-const notificationRoutes = require('./routes/notificationRoutes'); // 🔥 NUEVO
-const userRoutes = require('./routes/userRoutes'); // 🔥 NUEVO USUARIOS
+const notificationRoutes = require('./routes/notificationRoutes');
+const userRoutes = require('./routes/userRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const settingsRoutes = require('./routes/settingsRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
@@ -22,8 +22,8 @@ const app = express();
 
 // Middleware
 app.use(cors());
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json({ limit: '20mb' })); // 🔥 AUMENTADO A 20MB
+app.use(express.urlencoded({ extended: true, limit: '20mb' })); // 🔥 AUMENTADO A 20MB
 
 // Servir archivos estáticos (Imágenes subidas)
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
@@ -35,23 +35,23 @@ app.use('/api/products', productRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/notifications', notificationRoutes);
-app.use('/api/users', userRoutes); // 🔥 RUTA USUARIOS
-app.use('/api/categories', categoryRoutes); // 🔥 RUTA CATEGORÍAS
-app.use('/api/settings', settingsRoutes); // 🔥 RUTA CONFIGURACIÓN
-app.use('/api/reviews', reviewRoutes); // 🔥 RUTA RESEÑAS
+app.use('/api/users', userRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/settings', settingsRoutes);
+app.use('/api/reviews', reviewRoutes);
+
 // Health check
 app.get('/api/health', (req, res) => {
     res.json({ 
         status: 'OK', 
-        message: '🚀 Servidor funcionando con MySQL + XAMPP',
+        message: '🚀 Servidor funcionando',
         timestamp: new Date().toISOString()
     });
 });
 
 // ==========================================
-// SERVIR EL FRONTEND (VITE / REACT) - CORREGIDO
+// SERVIR EL FRONTEND (VITE / REACT)
 // ==========================================
-// La carpeta 'dist' se genera en la raíz del proyecto (un nivel arriba de backend)
 const distPath = path.join(__dirname, '../../dist');
 app.use(express.static(distPath));
 
@@ -77,7 +77,6 @@ const PORT = process.env.PORT || 5000;
 async function startServer() {
     console.log('🔄 Verificando conexión a MySQL...');
     
-    // Intenta conectar a la base de datos, pero NO detengas el servidor si falla en Render
     let dbConnected = false;
     try {
         dbConnected = await testConnection();
@@ -85,10 +84,7 @@ async function startServer() {
         console.error('❌ Error al probar la conexión a la base de datos:', error.message);
     }
     
-    // Crear servidor HTTP
     const server = http.createServer(app);
-    
-    // Inicializar Socket.io
     initializeSocket(server);
     console.log('🔌 Socket.io inicializado');
     
@@ -101,11 +97,12 @@ async function startServer() {
         console.log(`👥 Usuarios: http://localhost:${PORT}/api/users`);
         console.log(`🏷️ Categorías: http://localhost:${PORT}/api/categories`);
         console.log(`⚙️ Configuración: http://localhost:${PORT}/api/settings`);
-        console.log(`📨 RESEÑAS: http://localhost:${PORT}/api/reviews`);
+        console.log(`💬 Reseñas: http://localhost:${PORT}/api/reviews`);
+        
         if (dbConnected) {
             console.log('✅ Base de datos conectada correctamente.');
         } else {
-            console.log('⚠️  ADVERTENCIA: La base de datos NO está conectada. El servidor sigue corriendo, pero las funciones de datos fallarán.');
+            console.log('⚠️  ADVERTENCIA: La base de datos NO está conectada.');
         }
     });
 }
