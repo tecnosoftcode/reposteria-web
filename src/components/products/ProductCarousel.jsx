@@ -7,11 +7,17 @@ import { CartContext } from '../../context/CartContext';
 import 'swiper/css';
 import 'swiper/css/pagination';
 
-const ProductCarousel = ({ products, category }) => {
+const ProductCarousel = ({ products, category, icon }) => {
   const { addToCart } = useContext(CartContext);
   
-  const normalizedCategory = category.trim().toLowerCase();
+  // 🔥 Acepta tanto string (nombre) como objeto (category con id y nombre)
+  const categoryName = typeof category === 'object' ? category.nombre : category;
+  const categoryId = typeof category === 'object' ? category.id : null;
+  const categoryIcon = icon || (typeof category === 'object' ? category.icono : '🍰') || '🍰';
   
+  const normalizedCategory = categoryName.trim().toLowerCase();
+  
+  // 🔥 FILTRAR POR NOMBRE (porque la API devuelve categoria_nombre)
   const categoryProducts = products.filter(p => {
     const productCategory = (p.categoria_nombre || p.category || p.categoria || '')
       .trim()
@@ -19,6 +25,7 @@ const ProductCarousel = ({ products, category }) => {
     return productCategory === normalizedCategory;
   });
 
+  // 🔥 SI NO HAY PRODUCTOS, NO MOSTRAR LA CATEGORÍA
   if (categoryProducts.length === 0) return null;
 
   const isSingleProduct = categoryProducts.length === 1;
@@ -48,7 +55,6 @@ const ProductCarousel = ({ products, category }) => {
               <div className="discount-badge-modern">-{discount}%</div>
             )}
 
-            {/* ⭐ PRECIO SOBRE LA IMAGEN - ESQUINA INFERIOR DERECHA */}
             <div className="price-overlay-modern">
               <span className="price-overlay-current">${Number(productPrice).toFixed(2)}</span>
               {discount > 0 && (
@@ -68,7 +74,7 @@ const ProductCarousel = ({ products, category }) => {
           <div className="product-info-shop-modern">
             <div className="product-header-modern">
               <h3 className="product-name-modern">{productName}</h3>
-              <span className="product-category-modern">{category}</span>
+              <span className="product-category-modern">{categoryName}</span>
             </div>
             <p className="product-description-modern">
               {productDesc && productDesc.length > 50 
@@ -85,7 +91,7 @@ const ProductCarousel = ({ products, category }) => {
                   price: productPrice,
                   image: productImage,
                   description: productDesc,
-                  category: category
+                  category: categoryName
                 };
                 addToCart(cartProduct);
               }}
@@ -103,16 +109,23 @@ const ProductCarousel = ({ products, category }) => {
     <div className="carousel-container">
       <div className="carousel-header">
         <h2 className="carousel-title">
-          {category.charAt(0).toUpperCase() + category.slice(1)}
+          {categoryIcon} {categoryName.charAt(0).toUpperCase() + categoryName.slice(1)}
         </h2>
-        <Link to={`/productos?categoria=${category}`} className="view-all-btn">
-          Ver todos →
-        </Link>
+        {/* 🔥 SOLO MOSTRAR "VER TODOS" SI TENEMOS EL ID */}
+        {categoryId && (
+          <Link to={`/productos?categoria=${categoryId}`} className="view-all-btn">
+            Ver todos →
+          </Link>
+        )}
       </div>
 
       {isSingleProduct ? (
         <div className="single-product-wrapper">
-          {categoryProducts.map(product => renderProductCard(product))}
+          {categoryProducts.map(product => (
+            <div key={product.id}>
+              {renderProductCard(product)}
+            </div>
+          ))}
         </div>
       ) : (
         <Swiper

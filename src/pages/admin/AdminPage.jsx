@@ -258,7 +258,12 @@ const AdminPage = () => {
     const nombre = product.nombre || product.name || '';
     const categoriaId = product.categoria_id;
     const matchSearch = nombre.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchCategory = filterCategory === 'todos' || categoriaId === filterCategory;
+    
+    // 🔥 CONVERTIR A NÚMERO PARA COMPARAR
+    const matchCategory = 
+      filterCategory === 'todos' || 
+      Number(categoriaId) === Number(filterCategory);
+    
     return matchSearch && matchCategory;
   });
 
@@ -329,7 +334,10 @@ const AdminPage = () => {
         <div className="admin-filters">
           <select 
             value={filterCategory}
-            onChange={(e) => setFilterCategory(e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value;
+              setFilterCategory(value === 'todos' ? 'todos' : Number(value));
+            }}
           >
             <option value="todos">📦 Todas las categorías</option>
             {categories.map(cat => (
@@ -363,7 +371,7 @@ const AdminPage = () => {
               // Normalizar datos
               const nombre = product.nombre || product.name || 'Sin nombre';
               const imagen = product.imagen || product.image || 'https://via.placeholder.com/50/FFE4E1/8B4513?text=?';
-              const categoria = categories.find(c => c.id === product.categoria_id);
+              const categoria = categories.find(c => Number(c.id) === Number(product.categoria_id));
               const catLabel = categoria ? (categoria.icono ? `${categoria.icono} ${categoria.nombre}` : categoria.nombre) : 'Sin categoría';
               const precio = parseFloat(product.precio || product.price) || 0;
               const descuento = parseInt(product.descuento || product.discount) || 0;

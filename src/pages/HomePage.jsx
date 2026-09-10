@@ -195,7 +195,7 @@ const HomePage = () => {
             <ProductCarousel 
               key={category.id}
               products={products}
-              category={category.nombre}
+              category={category} 
               icon={category.icono || '🍰'}
             />
           ))

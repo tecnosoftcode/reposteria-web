@@ -1,19 +1,35 @@
 // backend/src/controllers/settingsController.js
-const fs = require('fs');
-const path = require('path');
-
-// Ruta del archivo de configuración
-const settingsFile = path.join(__dirname, '../../settings.json');
+const db = require('../config/database').pool;
 
 // Obtener configuración
 exports.getSettings = async (req, res) => {
     try {
-        if (fs.existsSync(settingsFile)) {
-            const data = fs.readFileSync(settingsFile, 'utf8');
-            res.json(JSON.parse(data));
-        } else {
-            res.json({ delivery_price: 0, payment_methods: [] });
+        const [rows] = await db.query('SELECT * FROM settings LIMIT 1');
+        
+        if (rows.length === 0) {
+            // Si no hay fila, devolver valores por defecto
+            return res.json({ 
+                delivery_price: 0, 
+                payment_methods: [] 
+            });
         }
+        
+        const settings = rows[0];
+        
+        // 🔥 Convertir payment_methods de JSON string a objeto
+        let paymentMethods = [];
+        try {
+            paymentMethods = typeof settings.payment_methods === 'string'
+                ? JSON.parse(settings.payment_methods)
+                : (settings.payment_methods || []);
+        } catch (e) {
+            paymentMethods = [];
+        }
+        
+        res.json({
+            delivery_price: parseFloat(settings.delivery_price) || 0,
+            payment_methods: paymentMethods
+        });
     } catch (error) {
         console.error('Error obteniendo configuración:', error);
         res.status(500).json({ error: 'Error al obtener configuración' });
@@ -25,14 +41,25 @@ exports.updateSettings = async (req, res) => {
     try {
         const { delivery_price, payment_methods } = req.body;
         
-        // Crear objeto de configuración
-        const settings = {
-            delivery_price: delivery_price || 0,
-            payment_methods: payment_methods || []
-        };
+        const deliveryPrice = parseFloat(delivery_price) || 0;
+        const paymentMethodsJson = JSON.stringify(payment_methods || []);
         
-        // Guardar en archivo JSON
-        fs.writeFileSync(settingsFile, JSON.stringify(settings, null, 2));
+        // Verificar si ya existe una fila
+        const [existing] = await db.query('SELECT id FROM settings LIMIT 1');
+        
+        if (existing.length > 0) {
+            // Actualizar
+            await db.query(
+                'UPDATE settings SET delivery_price = ?, payment_methods = ? WHERE id = ?',
+                [deliveryPrice, paymentMethodsJson, existing[0].id]
+            );
+        } else {
+            // Insertar nueva fila
+            await db.query(
+                'INSERT INTO settings (delivery_price, payment_methods) VALUES (?, ?)',
+                [deliveryPrice, paymentMethodsJson]
+            );
+        }
         
         res.json({ message: 'Configuración guardada exitosamente' });
     } catch (error) {

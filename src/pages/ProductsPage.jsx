@@ -28,9 +28,25 @@ const ProductsPage = () => {
         ]);
         setProducts(productsData);
         setCategories(categoriesData);
-        const categoryFromUrl = searchParams.get('categoria') || 'todos';
-        setSelectedCategory(categoryFromUrl);
-        applyFilters(productsData, '', categoryFromUrl);
+
+        // 🔥 LEER LA CATEGORÍA DE LA URL Y CONVERTIR A NÚMERO
+        const categoryFromUrl = searchParams.get('categoria');
+        let initialCategory = 'todos';
+        
+        if (categoryFromUrl) {
+          // Intentar convertir a número (ID)
+          const categoryId = parseInt(categoryFromUrl, 10);
+          if (!isNaN(categoryId)) {
+            initialCategory = categoryId;
+          } else {
+            // Si no es número, buscar por nombre (por si acaso)
+            const cat = categoriesData.find(c => c.nombre.toLowerCase() === categoryFromUrl.toLowerCase());
+            if (cat) initialCategory = cat.id;
+          }
+        }
+        
+        setSelectedCategory(initialCategory);
+        applyFilters(productsData, '', initialCategory);
       } catch (err) {
         console.error('Error cargando datos:', err);
         setError('Error al cargar productos.');
@@ -57,10 +73,10 @@ const ProductsPage = () => {
       });
     }
 
+    // 🔥 FILTRAR POR ID DE CATEGORÍA
     if (category && category !== 'todos') {
       filtered = filtered.filter(p => {
-        const cat = p.categoria_id;
-        return cat === category;
+        return Number(p.categoria_id) === Number(category);
       });
     }
 
@@ -129,9 +145,6 @@ const ProductsPage = () => {
         <div style={{ textAlign: 'center', padding: '4rem' }}>
           <h2>❌ Error</h2>
           <p>{error}</p>
-          <p style={{ fontSize: '0.9rem', color: 'gray' }}>
-            💡 Asegúrate de que el backend esté corriendo
-          </p>
           <button 
             className="btn-primary" 
             onClick={() => window.location.reload()}
@@ -145,6 +158,13 @@ const ProductsPage = () => {
   }
 
   // ==========================================
+  // 🔥 FILTRAR CATEGORÍAS QUE TIENEN PRODUCTOS
+  // ==========================================
+  const categoriesWithProducts = categories.filter(cat => 
+    products.some(p => Number(p.categoria_id) === Number(cat.id))
+  );
+
+  // ==========================================
   // RENDER - PÁGINA COMPLETA
   // ==========================================
   return (
@@ -154,7 +174,7 @@ const ProductsPage = () => {
         <div className="products-header-content">
           <Link to="/" className="products-logo-link">
             <img 
-              src="/images/logo-scarlet.png" 
+              src="/images/logo-scarletv2.png" 
               alt="Scarlet Sweet Shop - Pastelería Fina" 
               className="products-logo-image"
             />
@@ -184,8 +204,9 @@ const ProductsPage = () => {
           )}
         </div>
 
+        {/* 🔥 SOLO CATEGORÍAS CON PRODUCTOS */}
         <div className="category-filters">
-          {['todos', ...categories.map(cat => cat.id)].map(categoryId => {
+          {['todos', ...categoriesWithProducts.map(cat => cat.id)].map(categoryId => {
             const cat = categories.find(c => c.id === categoryId);
             const label = categoryId === 'todos' ? 'Todos' : (cat ? cat.nombre : '');
             const icon = categoryId === 'todos' ? '📦' : (cat ? cat.icono || '🍰' : '');
@@ -201,14 +222,13 @@ const ProductsPage = () => {
                 <span className="cat-count">
                   {categoryId === 'todos' 
                     ? products.length 
-                    : products.filter(p => p.categoria_id === categoryId).length}
+                    : products.filter(p => Number(p.categoria_id) === Number(categoryId)).length}
                 </span>
               </button>
             );
           })}
         </div>
 
-        {/* 🔥 Solo el botón de cuadrícula, sin lista */}
         <div className="view-actions">
           <span className="view-label">Vista:</span>
           <button 
