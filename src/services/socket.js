@@ -1,15 +1,18 @@
 import { io } from 'socket.io-client';
 
-const SOCKET_URL = 'http://localhost:5000';
+// 🔥 URL correcta de Render con HTTPS
+const SOCKET_URL = 'https://reposteria-backend-motu.onrender.com';
 
 let socket = null;
 
 export const connectSocket = () => {
     if (!socket) {
         socket = io(SOCKET_URL, {
-            transports: ['websocket'],
+            transports: ['websocket', 'polling'], // 🔥 Agregar polling como fallback
             reconnection: true,
-            reconnectionAttempts: 5
+            reconnectionAttempts: 5,
+            reconnectionDelay: 1000,
+            secure: true // 🔥 Usar HTTPS
         });
         
         socket.on('connect', () => {
@@ -18,6 +21,10 @@ export const connectSocket = () => {
         
         socket.on('disconnect', () => {
             console.log('🔌 Desconectado del servidor de notificaciones');
+        });
+        
+        socket.on('connect_error', (error) => {
+            console.error('❌ Error de conexión Socket.io:', error.message);
         });
     }
     return socket;
