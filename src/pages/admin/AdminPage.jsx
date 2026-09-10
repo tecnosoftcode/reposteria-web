@@ -4,8 +4,6 @@ import {
   FaSearch, FaCloudUploadAlt
 } from 'react-icons/fa';
 import toast from 'react-hot-toast';
-import imageCompression from 'browser-image-compression';
-import heic2any from 'heic2any';
 import { createProduct, updateProduct, deleteProduct, getProducts, getCategories } from '../../services/api';
 
 const AdminPage = () => {
@@ -58,116 +56,50 @@ const AdminPage = () => {
     }
   };
 
-  // Cargar al montar
   useEffect(() => {
     loadProducts();
     loadCategories();
   }, []);
 
   // ==========================================
-  // 🔥 MANEJO DE IMÁGENES (HEIC + Compresión universal)
+  // 🔥 MANEJO DE IMÁGENES (SIMPLE, SIN COMPRESIÓN)
   // ==========================================
-  const handleImageUpload = async (e) => {
-    let file = e.target.files[0];
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
     if (!file) return;
 
-    console.log('📸 Archivo original:', file.name, file.type, (file.size / 1024 / 1024).toFixed(2), 'MB');
+    console.log('📸 Archivo seleccionado:', file.name, file.type, (file.size / 1024).toFixed(2), 'KB');
 
-    // 🔥 Validar que sea imagen (o HEIC sin MIME type)
-    const isImage = 
-      file.type.startsWith('image/') || 
-      file.name.toLowerCase().endsWith('.heic') ||
-      file.name.toLowerCase().endsWith('.heif');
-
-    if (!isImage) {
+    // Validar que sea imagen
+    if (!file.type.startsWith('image/')) {
       toast.error('❌ Por favor selecciona una imagen válida');
       return;
     }
 
-    try {
-      // ==========================================
-      // 🔥 PASO 1: CONVERTIR HEIC A JPG
-      // ==========================================
-      const isHeic = 
-        file.type === 'image/heic' || 
-        file.type === 'image/heif' || 
-        file.name.toLowerCase().endsWith('.heic') ||
-        file.name.toLowerCase().endsWith('.heif');
-
-      if (isHeic) {
-        try {
-          toast.loading('Convirtiendo imagen HEIC...', { id: 'heic' });
-          console.log('🔄 Convirtiendo HEIC a JPG...');
-
-          const convertedBlob = await heic2any({
-            blob: file,
-            toType: 'image/jpeg',
-            quality: 0.85
-          });
-
-          // Si devuelve un array, tomar el primero
-          const blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
-
-          file = new File(
-            [blob],
-            file.name.replace(/\.(heic|heif)$/i, '.jpg'),
-            { type: 'image/jpeg' }
-          );
-
-          console.log('✅ HEIC convertido:', (file.size / 1024 / 1024).toFixed(2), 'MB');
-          toast.success('✅ Imagen convertida', { id: 'heic' });
-        } catch (error) {
-          console.error('❌ Error convirtiendo HEIC:', error);
-          toast.error('❌ No se pudo convertir la imagen HEIC', { id: 'heic' });
-          return;
-        }
-      }
-
-      // ==========================================
-      // 🔥 PASO 2: COMPRIMIR SI ES MAYOR A 1.5MB
-      // ==========================================
-      let finalFile = file;
-
-      if (file.size > 1.5 * 1024 * 1024) {
-        try {
-          toast.loading('Comprimiendo imagen...', { id: 'compress' });
-          console.log('🗜️ Comprimiendo...');
-
-          const options = {
-            maxSizeMB: 1.5,           // Máximo 1.5 MB
-            maxWidthOrHeight: 1920,   // Máximo 1920px
-            useWebWorker: true,       // Más rápido, no bloquea
-            fileType: 'image/jpeg',
-            initialQuality: 0.85
-          };
-
-          finalFile = await imageCompression(file, options);
-
-          console.log('✅ Comprimido:', (finalFile.size / 1024 / 1024).toFixed(2), 'MB');
-          toast.success('✅ Imagen comprimida', { id: 'compress' });
-        } catch (error) {
-          console.error('❌ Error comprimiendo:', error);
-          toast.error('⚠️ Continuando sin comprimir', { id: 'compress' });
-          finalFile = file;
-        }
-      }
-
-      // ==========================================
-      // 🔥 PASO 3: VALIDAR TAMAÑO FINAL
-      // ==========================================
-      if (finalFile.size > 15 * 1024 * 1024) {
-        toast.error('❌ La imagen debe ser menor a 15MB');
-        return;
-      }
-
-      const previewUrl = URL.createObjectURL(finalFile);
-      setFormData(prev => ({ ...prev, image: previewUrl, imageFile: finalFile }));
-      toast.success('✅ Imagen lista para subir');
-
-    } catch (error) {
-      console.error('❌ Error procesando imagen:', error);
-      toast.error('❌ Error al procesar la imagen');
+    // Validar tamaño (15 MB max)
+    if (file.size > 15 * 1024 * 1024) {
+      toast.error('❌ La imagen debe ser menor a 15MB');
+      return;
     }
+
+    // 🔥 Crear preview con FileReader (más compatible con móviles)
+    const reader = new FileReader();
+    
+    reader.onload = (event) => {
+      setFormData(prev => ({ 
+        ...prev, 
+        image: event.target.result,  // Data URL (funciona en todos los navegadores)
+        imageFile: file 
+      }));
+      toast.success('✅ Imagen seleccionada');
+    };
+    
+    reader.onerror = (error) => {
+      console.error('❌ Error leyendo archivo:', error);
+      toast.error('❌ Error al leer la imagen');
+    };
+    
+    reader.readAsDataURL(file);
   };
 
   // ==========================================
@@ -269,10 +201,8 @@ const AdminPage = () => {
     try {
       setLoading(true);
 
-      // 🔥 IMPORTANTE: Usar FormData para enviar el archivo
       const formDataToSend = new FormData();
       
-      // Agregar todos los campos
       formDataToSend.append('nombre', formData.name.trim());
       formDataToSend.append('descripcion', formData.description.trim());
       formDataToSend.append('precio', parseFloat(formData.price));
@@ -280,19 +210,17 @@ const AdminPage = () => {
       formDataToSend.append('descuento', parseInt(formData.discount) || 0);
       formDataToSend.append('en_stock', formData.inStock ? '1' : '0');
 
-      // Agregar tamaños
       if (formData.sizes) {
         const sizes = formData.sizes.split(',').map(s => s.trim()).filter(Boolean);
         sizes.forEach(size => formDataToSend.append('sizes', size));
       }
 
-      // Agregar sabores
       if (formData.flavors) {
         const flavors = formData.flavors.split(',').map(s => s.trim()).filter(Boolean);
         flavors.forEach(flavor => formDataToSend.append('flavors', flavor));
       }
 
-      // 🔥 IMPORTANTE: Agregar el archivo de imagen
+      // 🔥 Agregar el archivo de imagen
       if (formData.imageFile) {
         formDataToSend.append('imagen', formData.imageFile);
         console.log('📸 Enviando archivo:', formData.imageFile.name, formData.imageFile.size, 'bytes');
@@ -621,7 +549,7 @@ const AdminPage = () => {
                         <label htmlFor="image-upload" className="upload-label">
                           <FaCloudUploadAlt className="upload-icon" />
                           <span>Haz clic o arrastra una imagen</span>
-                          <small>JPG, PNG, GIF, WEBP, HEIC (max 15MB)</small>
+                          <small>JPG, PNG, GIF, WEBP (max 15MB)</small>
                         </label>
                       </div>
                     )}
