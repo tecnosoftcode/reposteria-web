@@ -65,9 +65,9 @@ const AdminPage = () => {
   }, []);
 
   // ==========================================
-  // 🔥 MANEJO DE IMÁGENES (CON REINTENTO PARA MÓVILES)
+  // 🔥 MANEJO DE IMÁGENES (URL.createObjectURL)
   // ==========================================
-  const handleImageUpload = async (e) => {
+  const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
@@ -85,54 +85,21 @@ const AdminPage = () => {
       return;
     }
 
-    // 🔥 Función para leer el archivo con reintento
-    const readFileWithRetry = (file, retries = 3) => {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-
-        reader.onload = (event) => {
-          resolve(event.target.result);
-        };
-
-        reader.onerror = (error) => {
-          console.error(`❌ Intento de lectura falló (quedan ${retries}):`, error);
-
-          if (retries > 0) {
-            // Esperar 500ms y reintentar
-            setTimeout(() => {
-              readFileWithRetry(file, retries - 1).then(resolve).catch(reject);
-            }, 500);
-          } else {
-            reject(new Error('No se pudo leer la imagen después de varios intentos'));
-          }
-        };
-
-        // 🔥 Esperar un poco antes de leer (por el lazy load de Android)
-        setTimeout(() => {
-          try {
-            reader.readAsDataURL(file);
-          } catch (error) {
-            reject(error);
-          }
-        }, 100);
-      });
-    };
-
     try {
-      // 🔥 Leer el archivo con reintento
-      const previewUrl = await readFileWithRetry(file);
-
+      // 🔥 URL.createObjectURL (más rápido y sin problemas en móviles)
+      const previewUrl = URL.createObjectURL(file);
+      
       setFormData(prev => ({ 
         ...prev, 
         image: previewUrl,
         imageFile: file 
       }));
-
+      
       toast.success('✅ Imagen seleccionada');
       console.log('✅ Preview creada correctamente');
     } catch (error) {
-      console.error('❌ Error leyendo archivo:', error);
-      toast.error('❌ Error al leer la imagen. Intenta de nuevo.');
+      console.error('❌ Error creando preview:', error);
+      toast.error('❌ Error al procesar la imagen');
     }
   };
 
