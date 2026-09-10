@@ -37,7 +37,7 @@ html {
 }
 
 body {
-  font-family: 'Georgia', 'Times New Roman', 'Segoe UI', serif;
+  font-family: 'Inter', 'Segoe UI', -apple-system, sans-serif;
   background-color: var(--bg-primary);
   color: var(--text-primary);
   line-height: 1.7;
@@ -47,6 +47,13 @@ body {
   background-position: center;
   background-attachment: fixed;
   position: relative;
+}
+
+/* 🔥 Títulos elegantes */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Playfair Display', 'Georgia', serif;
+  font-weight: 600;
+  letter-spacing: 0.5px;
 }
 
 body::before {
