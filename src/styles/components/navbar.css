@@ -1,5 +1,5 @@
 /* ========================================
-   NAVBAR - ELEGANTE
+   NAVBAR - ELEGANTE MEJORADO
    ======================================== */
 .navbar {
   background: rgba(10, 8, 6, 0.95);
@@ -10,6 +10,14 @@
   top: 0;
   z-index: 1000;
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 🔥 Navbar con scroll (se achica) */
+.navbar.scrolled {
+  padding: 0.4rem 2rem;
+  background: rgba(10, 8, 6, 0.98);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
 }
 
 .navbar-container {
@@ -20,6 +28,9 @@
   align-items: center;
 }
 
+/* ========================================
+   LOGO
+   ======================================== */
 .navbar-logo {
   display: flex;
   align-items: center;
@@ -27,7 +38,7 @@
   color: var(--text-primary);
   text-decoration: none;
   transition: var(--transition);
-  font-family: 'Georgia', 'Times New Roman', serif;
+  font-family: 'Playfair Display', 'Georgia', serif;
 }
 
 .navbar-logo:hover {
@@ -36,6 +47,11 @@
 
 .logo-icon {
   font-size: 1.8rem;
+  transition: transform 0.3s ease;
+}
+
+.navbar-logo:hover .logo-icon {
+  transform: rotate(-8deg) scale(1.1);
 }
 
 .logo-text {
@@ -44,6 +60,11 @@
   gap: 0.2rem;
   font-size: 1.5rem;
   font-weight: bold;
+  transition: text-shadow 0.3s ease;
+}
+
+.navbar-logo:hover .logo-text {
+  text-shadow: 0 0 20px rgba(212, 168, 83, 0.3);
 }
 
 .logo-swan {
@@ -52,6 +73,11 @@
   text-shadow: 0 0 20px rgba(212, 168, 83, 0.3);
   transform: rotate(-3deg);
   display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+.navbar-logo:hover .logo-swan {
+  transform: rotate(-8deg) scale(1.1);
 }
 
 .logo-text .logo-sub {
@@ -63,6 +89,9 @@
   opacity: 0.8;
 }
 
+/* ========================================
+   MENÚ HAMBURGUESA
+   ======================================== */
 .menu-toggle {
   display: none;
   background: none;
@@ -76,8 +105,12 @@
 
 .menu-toggle:hover {
   color: var(--gold);
+  transform: scale(1.1);
 }
 
+/* ========================================
+   MENÚ DE NAVEGACIÓN
+   ======================================== */
 .nav-menu {
   display: flex;
   list-style: none;
@@ -98,6 +131,7 @@
   font-size: 0.95rem;
   font-family: 'Georgia', 'Times New Roman', serif;
   letter-spacing: 0.5px;
+  position: relative;
 }
 
 .nav-menu a:hover {
@@ -105,6 +139,36 @@
   text-shadow: 0 0 20px rgba(212, 168, 83, 0.08);
 }
 
+/* 🔥 Enlace activo */
+.nav-menu a.active {
+  color: var(--gold) !important;
+}
+
+.nav-menu a.active::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--gold), var(--gold-dark));
+  border-radius: 2px;
+  box-shadow: 0 0 20px rgba(212, 168, 83, 0.3);
+  animation: fadeInActive 0.3s ease;
+}
+
+@keyframes fadeInActive {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* ========================================
+   CATEGORÍAS (DROPDOWN)
+   ======================================== */
 .nav-categories {
   cursor: pointer;
   color: var(--text-secondary);
@@ -113,29 +177,57 @@
   transition: var(--transition);
   font-family: 'Georgia', 'Times New Roman', serif;
   letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 
 .nav-categories:hover {
   color: var(--gold);
 }
 
-.nav-categories:hover .dropdown {
-  display: block;
+.nav-categories span.active {
+  color: var(--gold);
 }
 
+.nav-categories .chevron {
+  margin-left: 0.2rem;
+  font-size: 0.7rem;
+  transition: transform 0.3s ease;
+}
+
+.nav-categories .chevron.open {
+  transform: rotate(180deg);
+}
+
+/* 🔥 Dropdown con animación */
 .dropdown {
-  display: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
   position: absolute;
   top: 100%;
   left: 0;
   background: rgba(13, 10, 8, 0.98);
+  backdrop-filter: blur(20px);
   padding: 0.5rem;
-  border-radius: 8px;
-  border: 1px solid rgba(212, 168, 83, 0.04);
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
-  min-width: 180px;
+  border-radius: 12px;
+  border: 1px solid rgba(212, 168, 83, 0.12);
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  min-width: 220px;
   list-style: none;
   z-index: 10;
+}
+
+.dropdown.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: auto;
 }
 
 .dropdown li {
@@ -144,17 +236,42 @@
 
 .dropdown a {
   color: var(--text-secondary) !important;
-  padding: 0.5rem 1rem;
-  display: block;
-  border-radius: 5px;
+  padding: 0.6rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.dropdown a::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 60%;
+  background: var(--gold);
+  border-radius: 2px;
+  transition: width 0.3s ease;
 }
 
 .dropdown a:hover {
-  background: rgba(212, 168, 83, 0.03);
+  background: rgba(212, 168, 83, 0.08);
   color: var(--gold) !important;
-  text-shadow: 0 0 20px rgba(212, 168, 83, 0.06);
+  padding-left: 1.3rem;
 }
 
+.dropdown a:hover::before {
+  width: 3px;
+}
+
+/* ========================================
+   ACCIONES (CARRITO Y USUARIO)
+   ======================================== */
 .nav-actions {
   display: flex;
   gap: 1rem;
@@ -176,35 +293,53 @@
   align-items: center;
 }
 
-.cart-button:hover,
-.user-button:hover {
+.cart-button:hover {
   color: var(--gold);
   transform: scale(1.1);
 }
 
+.user-button:hover {
+  color: var(--gold);
+  transform: scale(1.1) rotate(5deg);
+}
+
+/* 🔥 Badge del carrito animado */
 .cart-badge {
   position: absolute;
   top: -5px;
   right: -5px;
-  background: var(--gold);
-  color: #1a1410;
+  background: linear-gradient(135deg, #ff4757, #ff6348);
+  color: white;
   border-radius: 50%;
-  padding: 2px 7px;
+  min-width: 20px;
+  height: 20px;
   font-size: 0.65rem;
-  font-weight: 600;
-  box-shadow: 0 0 20px rgba(212, 168, 83, 0.10);
-  animation: pulse 2s infinite;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  box-shadow: 
+    0 0 15px rgba(255, 71, 87, 0.6),
+    0 0 30px rgba(255, 71, 87, 0.3);
+  animation: pulseBadge 2s infinite;
+  border: 2px solid rgba(10, 8, 6, 0.95);
 }
 
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.15); }
+@keyframes pulseBadge {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 15px rgba(255, 71, 87, 0.6);
+  }
+  50% {
+    transform: scale(1.15);
+    box-shadow: 0 0 25px rgba(255, 71, 87, 0.9);
+  }
 }
 
 /* ========================================
-   NAVBAR - RESPONSIVE
+   RESPONSIVE - TABLETS (max-width: 768px)
    ======================================== */
-
 @media (max-width: 768px) {
   .menu-toggle {
     display: block;
@@ -218,14 +353,43 @@
     left: 0;
     right: 0;
     background: rgba(13, 10, 8, 0.98);
-    padding: 1rem;
+    backdrop-filter: blur(20px);
+    padding: 1.5rem 1rem;
     gap: 1rem;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
     border-bottom: 1px solid rgba(212, 168, 83, 0.04);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateY(-100%);
+    opacity: 0;
   }
 
   .nav-menu.active {
     display: flex;
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .nav-menu a {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    font-size: 1rem;
+  }
+
+  .nav-menu a.active {
+    background: rgba(212, 168, 83, 0.1);
+  }
+
+  .nav-menu a.active::after {
+    display: none;
+  }
+
+  .nav-categories {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    justify-content: space-between;
+    font-size: 1rem;
   }
 
   .nav-categories .dropdown {
@@ -233,14 +397,25 @@
     background: rgba(212, 168, 83, 0.02);
     margin-top: 0.5rem;
     border: none;
+    box-shadow: none;
+    display: none;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    pointer-events: auto;
+  }
+
+  .nav-categories .dropdown.open {
+    display: block;
   }
 
   .dropdown a {
     color: var(--text-secondary) !important;
+    padding: 0.6rem 1rem;
   }
 
   .dropdown a:hover {
-    background: rgba(212, 168, 83, 0.03);
+    background: rgba(212, 168, 83, 0.05);
   }
 
   .navbar-logo {
@@ -266,7 +441,9 @@
   }
 }
 
-/* 🔥 MÓVILES - FORZADO */
+/* ========================================
+   RESPONSIVE - MÓVILES (max-width: 480px)
+   ======================================== */
 @media (max-width: 480px) {
   .navbar {
     padding: 0.5rem 0.8rem;
@@ -312,16 +489,18 @@
     padding: 1px 5px;
     top: -3px;
     right: -3px;
+    min-width: 16px;
+    height: 16px;
   }
 
   .nav-menu a {
     font-size: 0.85rem;
-    padding: 0.3rem 0;
+    padding: 0.6rem 0.8rem;
   }
 
   .nav-categories {
     font-size: 0.85rem;
-    padding: 0.3rem 0;
+    padding: 0.6rem 0.8rem;
   }
 
   .menu-toggle {
@@ -330,6 +509,9 @@
   }
 }
 
+/* ========================================
+   RESPONSIVE - MÓVILES MUY PEQUEÑOS (max-width: 360px)
+   ======================================== */
 @media (max-width: 360px) {
   .navbar-logo {
     font-size: 0.85rem !important;
