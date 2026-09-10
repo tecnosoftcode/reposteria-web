@@ -938,14 +938,14 @@
 
   .hero-logo-image {
     max-width: 250px !important;
-    width: 160px !important;
+    width: 140px !important;
     height: 250px !important;
     object-fit: contain !important;
     display: block !important;
   }
 
   .hero-logo-container {
-    width: 155px !important;
+    width: 135px !important;
     height: 100px !important;
     padding: 0px !important;
     top: 30px !important;
