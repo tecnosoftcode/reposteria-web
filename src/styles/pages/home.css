@@ -82,7 +82,7 @@
 /* ===== CONTENEDOR DEL LOGO ===== */
 .hero-logo-container {
   position: absolute;
-  top: -10px;
+  top: -40px;
   left: 0;
   right: 0;
   margin: 0 auto;
@@ -93,9 +93,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  /* overflow: hidden; */
+  overflow: hidden;
   animation: logoFloat 4s ease-in-out infinite;
-  padding: 20px;
+  /* padding: 20px; */
 }
 
 /* ===== LOGO ===== */
